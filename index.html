@@ -40,8 +40,14 @@
   .dot.live { background: var(--live); animation: pulse 1.5s infinite; }
   .dot.green { background: var(--green); }
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
-  .player-badge { background: var(--card2); border: 1px solid var(--border); border-radius: 20px; padding: .3rem .8rem; font-size: .8rem; cursor: pointer; display: flex; align-items: center; gap: .4rem; }
+  .player-badge { background: var(--card2); border: 1px solid var(--border); border-radius: 20px; padding: .3rem .8rem; font-size: .8rem; cursor: pointer; display: flex; align-items: center; gap: .4rem; position: relative; user-select: none; }
   .player-badge:hover { border-color: var(--gold); }
+  .player-dropdown { position: absolute; top: calc(100% + 8px); right: 0; background: var(--card2); border: 1px solid var(--gold); border-radius: 12px; min-width: 160px; overflow: hidden; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,.5); }
+  .player-dropdown-item { padding: .65rem 1rem; font-size: .85rem; cursor: pointer; display: flex; align-items: center; gap: .5rem; transition: background .15s; white-space: nowrap; }
+  .player-dropdown-item:hover { background: rgba(240,180,41,.1); }
+  .player-dropdown-item.active { color: var(--gold); font-weight: 700; }
+  .player-dropdown-item + .player-dropdown-item { border-top: 1px solid var(--border); }
+  .player-dropdown-empty { padding: .65rem 1rem; font-size: .82rem; color: var(--muted); }
 
   nav { background: var(--card); border-bottom: 1px solid var(--border); }
   .tabs { max-width: 1400px; margin: 0 auto; display: flex; padding: 0 1.5rem; overflow-x: auto; }
@@ -307,8 +313,9 @@
         <div class="dot" id="refresh-dot"></div>
         <span id="refresh-text">–</span>
       </div>
-      <div class="player-badge" onclick="switchPlayerPrompt()" title="Aktív játékos váltása">
-        👤 <span id="active-player-label">Válassz játékost</span>
+      <div class="player-badge" id="player-badge" onclick="togglePlayerDropdown(event)">
+        👤 <span id="active-player-label">Válassz játékost</span> <span style="font-size:.65rem;opacity:.6">▼</span>
+        <div class="player-dropdown" id="player-dropdown" style="display:none" onclick="event.stopPropagation()"></div>
       </div>
     </div>
   </div>
@@ -678,6 +685,7 @@ function switchTab(id) {
   document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-'+id))
 }
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)))
+document.addEventListener('click', () => closePlayerDropdown())
 
 // ============================================================
 // FILTERS
@@ -1070,10 +1078,37 @@ function setActivePlayer(name) {
   showToast(`👤 Aktív: ${name}`)
 }
 
+function togglePlayerDropdown(e) {
+  e.stopPropagation()
+  const dd = document.getElementById('player-dropdown')
+  if (dd.style.display === 'none') openPlayerDropdown()
+  else closePlayerDropdown()
+}
+
+function openPlayerDropdown() {
+  const dd = document.getElementById('player-dropdown')
+  if (!state.players.length) {
+    dd.innerHTML = `<div class="player-dropdown-empty">Nincs játékos – add hozzá a Beállításokban</div>`
+  } else {
+    dd.innerHTML = state.players.map(p => `
+      <div class="player-dropdown-item ${p===state.activePlayer?'active':''}" onclick="selectPlayerFromDropdown('${p.replace(/'/g,"\\'")}')">
+        ${p===state.activePlayer?'▶ ':''} ${p}
+      </div>`).join('')
+  }
+  dd.style.display = 'block'
+}
+
+function closePlayerDropdown() {
+  document.getElementById('player-dropdown').style.display = 'none'
+}
+
+function selectPlayerFromDropdown(name) {
+  setActivePlayer(name)
+  closePlayerDropdown()
+}
+
 function switchPlayerPrompt() {
-  if (!state.players.length) { switchTab('settings'); return }
-  const idx = state.players.indexOf(state.activePlayer)
-  setActivePlayer(state.players[(idx+1) % state.players.length])
+  openPlayerDropdown()
 }
 
 function updateActivePlayerLabel() {
