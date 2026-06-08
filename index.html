@@ -952,11 +952,11 @@ function renderStandings() {
       if (fs) { const p_=calcPoints(tip,fs); pts+=p_; if(p_===3)exact++; if(p_===1)correct++ }
     })
     return { name:p, pts, exact, correct, total }
-  }).sort((a,b)=>b.pts-a.pts||b.exact-a.exact)
+  }).sort((a,b)=> b.pts!==a.pts ? b.pts-a.pts : b.exact!==a.exact ? b.exact-a.exact : a.name.localeCompare(b.name))
 
   tbody.innerHTML = results.map((r,i)=>`<tr>
     <td class="${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':''}">${i+1}</td>
-    <td><strong>${r.name}</strong>${r.name===state.activePlayer?' 👤':''}</td>
+    <td><strong>${r.name}</strong></td>
     <td class="pts-cell">${r.pts}</td><td>${r.exact}</td><td>${r.correct}</td><td>${r.total}</td>
   </tr>`).join('')
 
