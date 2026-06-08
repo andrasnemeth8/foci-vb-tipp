@@ -501,16 +501,18 @@ function subscribeRealtime() {
 // FOOTBALL API
 // ============================================================
 const API_BASE = 'https://api.football-data.org/v4'
+const CORS_PROXY = 'https://corsproxy.io/?'
 const COMP = 'WC'
 
 async function apiFetch(path) {
-  const key = path
+  const cacheKey = path
   const now = Date.now()
-  if (state.cache[key] && now - state.cache[key].ts < 30000) return state.cache[key].data
-  const res = await fetch(`${API_BASE}${path}`, { headers: { 'X-Auth-Token': state.apiKey } })
+  if (state.cache[cacheKey] && now - state.cache[cacheKey].ts < 30000) return state.cache[cacheKey].data
+  const url = CORS_PROXY + encodeURIComponent(`${API_BASE}${path}`)
+  const res = await fetch(url, { headers: { 'X-Auth-Token': state.apiKey } })
   if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.message || `HTTP ${res.status}`) }
   const data = await res.json()
-  state.cache[key] = { ts: now, data }
+  state.cache[cacheKey] = { ts: now, data }
   return data
 }
 
@@ -1018,7 +1020,7 @@ async function testApiKey() {
   const result = document.getElementById('api-test-result')
   result.innerHTML = '<span style="color:var(--muted)">Tesztelés...</span>'
   try {
-    const res = await fetch(`${API_BASE}/competitions/${COMP}`, { headers: {'X-Auth-Token':key} })
+    const res = await fetch(CORS_PROXY + encodeURIComponent(`${API_BASE}/competitions/${COMP}`), { headers: {'X-Auth-Token':key} })
     if (res.ok) { const d=await res.json(); result.innerHTML=`<span style="color:var(--green)">✅ OK: ${d.name||'WC 2026'}</span>` }
     else { const e=await res.json().catch(()=>({})); result.innerHTML=`<span style="color:var(--red)">❌ ${e.message||res.status}</span>` }
   } catch { result.innerHTML=`<span style="color:var(--red)">❌ Hálózati hiba</span>` }
