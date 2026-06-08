@@ -242,24 +242,59 @@
 <header>
   <div class="header-inner">
     <div class="mascot-wrap">
-      <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="28" cy="28" r="27" fill="#1a2a4a" stroke="#f0b429" stroke-width="1.5"/>
-        <ellipse cx="28" cy="32" rx="14" ry="10" fill="#f0b429"/>
-        <path d="M18 28 Q28 24 38 28" stroke="#c8941a" stroke-width="1.2" fill="none"/>
-        <path d="M16 32 Q28 28 40 32" stroke="#c8941a" stroke-width="1.2" fill="none"/>
-        <ellipse cx="28" cy="20" rx="7" ry="6" fill="#f0b429"/>
-        <circle cx="25" cy="19" r="1.5" fill="#0a0e1a"/>
-        <circle cx="31" cy="19" r="1.5" fill="#0a0e1a"/>
-        <circle cx="25.5" cy="18.5" r=".5" fill="white"/>
-        <circle cx="31.5" cy="18.5" r=".5" fill="white"/>
-        <ellipse cx="28" cy="21.5" rx="1.5" ry="1" fill="#c8941a"/>
-        <ellipse cx="21" cy="16" rx="2.5" ry="3.5" fill="#f0b429" transform="rotate(-15 21 16)"/>
-        <ellipse cx="35" cy="16" rx="2.5" ry="3.5" fill="#f0b429" transform="rotate(15 35 16)"/>
-        <ellipse cx="20" cy="41" rx="4" ry="2.5" fill="#c8941a"/>
-        <ellipse cx="36" cy="41" rx="4" ry="2.5" fill="#c8941a"/>
-        <path d="M42 34 Q50 30 48 22" stroke="#f0b429" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        <circle cx="14" cy="40" r="5" fill="white" stroke="#0a0e1a" stroke-width=".5"/>
-        <path d="M14 35 L14 37 M11 37 L16 38 M11 42 L16 42 M14 45 L14 43" stroke="#0a0e1a" stroke-width=".8"/>
+      <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="goldG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#FFE566"/>
+            <stop offset="60%" stop-color="#F0B429"/>
+            <stop offset="100%" stop-color="#C8841A"/>
+          </linearGradient>
+          <linearGradient id="bgG" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#0D1B35"/>
+            <stop offset="100%" stop-color="#1A2E50"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Background circle -->
+        <circle cx="100" cy="100" r="98" fill="url(#bgG)"/>
+        <circle cx="100" cy="100" r="97" fill="none" stroke="#F0B429" stroke-width="2.5"/>
+
+        <!-- Trophy handles -->
+        <path d="M64 46 C46 46 40 62 40 72 C40 83 50 88 62 84" fill="none" stroke="url(#goldG)" stroke-width="8" stroke-linecap="round"/>
+        <path d="M136 46 C154 46 160 62 160 72 C160 83 150 88 138 84" fill="none" stroke="url(#goldG)" stroke-width="8" stroke-linecap="round"/>
+
+        <!-- Trophy cup -->
+        <path d="M64 22 L64 82 C64 98 80 106 100 106 C120 106 136 98 136 82 L136 22 Z" fill="url(#goldG)"/>
+
+        <!-- Top rim -->
+        <rect x="60" y="17" width="80" height="10" rx="5" fill="#FFE566"/>
+
+        <!-- Globe lines on cup -->
+        <ellipse cx="100" cy="64" rx="30" ry="11" fill="none" stroke="rgba(10,20,40,0.22)" stroke-width="1.8"/>
+        <ellipse cx="100" cy="64" rx="15" ry="30" fill="none" stroke="rgba(10,20,40,0.18)" stroke-width="1.8"/>
+        <line x1="70" y1="64" x2="130" y2="64" stroke="rgba(10,20,40,0.18)" stroke-width="1.8"/>
+        <line x1="100" y1="27" x2="100" y2="100" stroke="rgba(10,20,40,0.12)" stroke-width="1.8"/>
+
+        <!-- Stem -->
+        <path d="M88 106 L88 124 C88 128 112 128 112 124 L112 106 Z" fill="url(#goldG)"/>
+
+        <!-- Base -->
+        <rect x="66" y="124" width="68" height="13" rx="6.5" fill="url(#goldG)"/>
+        <rect x="70" y="135" width="60" height="5" rx="2.5" fill="#A87010"/>
+
+        <!-- Host nation stripes -->
+        <rect x="66" y="140" width="21" height="5" rx="2.5" fill="#B22234"/>
+        <rect x="90" y="140" width="20" height="5" rx="2.5" fill="#FF0000"/>
+        <rect x="113" y="140" width="21" height="5" rx="2.5" fill="#006847"/>
+
+        <!-- Stars -->
+        <text x="100" y="160" text-anchor="middle" font-size="12" fill="#F0B429" font-family="Arial">★ ★ ★ ★ ★</text>
+
+        <!-- FIFA WORLD CUP text -->
+        <text x="100" y="172" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="9" fill="#C8A030" letter-spacing="2">FIFA WORLD CUP</text>
+
+        <!-- 2026 -->
+        <text x="100" y="194" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-weight="900" font-size="32" fill="white" letter-spacing="3">2026</text>
       </svg>
     </div>
     <div class="title-block">
