@@ -5,11 +5,11 @@ Egy egyszerű demó projekt.
 ## Telepítés
 
 1. Klónozd a repót
-2. Futtasd a programt
+2. Futtasd a programot
 
 ## Használat
 
-Ez egy bemutato projekt az első PR gyakorlásához.
+Ez egy bemutató projekt az első PR gyakorlásához.
 
 ## Licenc
 
