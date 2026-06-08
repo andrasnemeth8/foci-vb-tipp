@@ -627,9 +627,35 @@ function getFilteredMatches() {
 // ============================================================
 // MECCS RENDERELÉS
 // ============================================================
-function teamFlag(name) {
-  const f = {'USA':'🇺🇸','United States':'🇺🇸','Brazil':'🇧🇷','Argentina':'🇦🇷','France':'🇫🇷','Germany':'🇩🇪','England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Spain':'🇪🇸','Portugal':'🇵🇹','Netherlands':'🇳🇱','Belgium':'🇧🇪','Croatia':'🇭🇷','Morocco':'🇲🇦','Senegal':'🇸🇳','Japan':'🇯🇵','South Korea':'🇰🇷','Mexico':'🇲🇽','Canada':'🇨🇦','Australia':'🇦🇺','Poland':'🇵🇱','Switzerland':'🇨🇭','Denmark':'🇩🇰','Uruguay':'🇺🇾','Colombia':'🇨🇴','Ecuador':'🇪🇨','Saudi Arabia':'🇸🇦','Iran':'🇮🇷','Tunisia':'🇹🇳','Ghana':'🇬🇭','Cameroon':'🇨🇲','Serbia':'🇷🇸','Wales':'🏴󠁧󠁢󠁷󠁬󠁳󠁿','Qatar':'🇶🇦','Italy':'🇮🇹','Ukraine':'🇺🇦','Hungary':'🇭🇺','Austria':'🇦🇹','Turkey':'🇹🇷','Egypt':'🇪🇬','Nigeria':'🇳🇬','Chile':'🇨🇱','Peru':'🇵🇪','Paraguay':'🇵🇾','Bolivia':'🇧🇴','Venezuela':'🇻🇪','Costa Rica':'🇨🇷','Panama':'🇵🇦','Honduras':'🇭🇳','El Salvador':'🇸🇻','New Zealand':'🇳🇿','Indonesia':'🇮🇩','China PR':'🇨🇳','China':'🇨🇳','Iraq':'🇮🇶','Jordan':'🇯🇴','UAE':'🇦🇪','Scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Ireland':'🇮🇪','Czech Republic':'🇨🇿','Slovakia':'🇸🇰','Romania':'🇷🇴','Greece':'🇬🇷','Slovenia':'🇸🇮','Iceland':'🇮🇸','Norway':'🇳🇴','Sweden':'🇸🇪','Finland':'🇫🇮','Israel':'🇮🇱','Georgia':'🇬🇪',"Côte d'Ivoire":'🇨🇮','Ivory Coast':'🇨🇮','South Africa':'🇿🇦','Algeria':'🇩🇿','Kenya':'🇰🇪'}
-  return f[name] || '🏳️'
+function teamFlag(team) {
+  if (!team) return '🏳️'
+  // API-ból közvetlenül
+  if (team.area?.flag) return team.area.flag
+  const tla = (team.tla || '').toUpperCase()
+  const tlaMap = {
+    'USA':'🇺🇸','BRA':'🇧🇷','ARG':'🇦🇷','FRA':'🇫🇷','GER':'🇩🇪','ENG':'🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    'ESP':'🇪🇸','POR':'🇵🇹','NED':'🇳🇱','BEL':'🇧🇪','CRO':'🇭🇷','MAR':'🇲🇦',
+    'SEN':'🇸🇳','JPN':'🇯🇵','KOR':'🇰🇷','MEX':'🇲🇽','CAN':'🇨🇦','AUS':'🇦🇺',
+    'POL':'🇵🇱','SUI':'🇨🇭','DEN':'🇩🇰','URU':'🇺🇾','COL':'🇨🇴','ECU':'🇪🇨',
+    'KSA':'🇸🇦','IRN':'🇮🇷','TUN':'🇹🇳','GHA':'🇬🇭','CMR':'🇨🇲','SRB':'🇷🇸',
+    'WAL':'🏴󠁧󠁢󠁷󠁬󠁳󠁿','ITA':'🇮🇹','UKR':'🇺🇦','HUN':'🇭🇺','AUT':'🇦🇹',
+    'TUR':'🇹🇷','EGY':'🇪🇬','NGA':'🇳🇬','CHL':'🇨🇱','PER':'🇵🇪','PAR':'🇵🇾',
+    'BOL':'🇧🇴','VEN':'🇻🇪','CRC':'🇨🇷','PAN':'🇵🇦','HON':'🇭🇳','SLV':'🇸🇻',
+    'JAM':'🇯🇲','TRI':'🇹🇹','NZL':'🇳🇿','IDN':'🇮🇩','CHN':'🇨🇳','IRQ':'🇮🇶',
+    'JOR':'🇯🇴','UAE':'🇦🇪','SCO':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','IRL':'🇮🇪','CZE':'🇨🇿',
+    'SVK':'🇸🇰','ROU':'🇷🇴','GRE':'🇬🇷','SVN':'🇸🇮','ISL':'🇮🇸','NOR':'🇳🇴',
+    'SWE':'🇸🇪','FIN':'🇫🇮','ISR':'🇮🇱','GEO':'🇬🇪','CIV':'🇨🇮','RSA':'🇿🇦',
+    'ALG':'🇩🇿','KEN':'🇰🇪','GUA':'🇬🇹','NCA':'🇳🇮','HAI':'🇭🇹','CUB':'🇨🇺',
+    'PHI':'🇵🇭','VIE':'🇻🇳','THA':'🇹🇭','IND':'🇮🇳','QAT':'🇶🇦','BHR':'🇧🇭',
+    'OMA':'🇴🇲','KWT':'🇰🇼','MLI':'🇲🇱','BFA':'🇧🇫','ZIM':'🇿🇼','ZAM':'🇿🇲',
+    'ETH':'🇪🇹','TAN':'🇹🇿','LBA':'🇱🇾','ANG':'🇦🇴','COD':'🇨🇩','GUI':'🇬🇳',
+    'RWA':'🇷🇼','UGA':'🇺🇬','ALB':'🇦🇱','MKD':'🇲🇰','BIH':'🇧🇦','KOS':'🇽🇰',
+  }
+  if (tla && tlaMap[tla]) return tlaMap[tla]
+  // Név alapú fallback
+  const name = team.name || team.shortName || ''
+  const nameMap = {'United States':'🇺🇸','USA':'🇺🇸','Brazil':'🇧🇷','Argentina':'🇦🇷','France':'🇫🇷','Germany':'🇩🇪','England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Spain':'🇪🇸','Portugal':'🇵🇹','Netherlands':'🇳🇱','Belgium':'🇧🇪','Croatia':'🇭🇷','Morocco':'🇲🇦','Senegal':'🇸🇳','Japan':'🇯🇵','South Korea':'🇰🇷','Korea Republic':'🇰🇷','Mexico':'🇲🇽','Canada':'🇨🇦','Australia':'🇦🇺','Poland':'🇵🇱','Switzerland':'🇨🇭','Denmark':'🇩🇰','Uruguay':'🇺🇾','Colombia':'🇨🇴','Ecuador':'🇪🇨','Saudi Arabia':'🇸🇦','Iran':'🇮🇷','Tunisia':'🇹🇳','Ghana':'🇬🇭','Cameroon':'🇨🇲','Serbia':'🇷🇸','Wales':'🏴󠁧󠁢󠁷󠁬󠁳󠁿','Qatar':'🇶🇦','Italy':'🇮🇹','Ukraine':'🇺🇦','Hungary':'🇭🇺','Austria':'🇦🇹','Turkey':'🇹🇷','Türkiye':'🇹🇷','Egypt':'🇪🇬','Nigeria':'🇳🇬','Chile':'🇨🇱','Peru':'🇵🇪','Paraguay':'🇵🇾','Bolivia':'🇧🇴','Venezuela':'🇻🇪','Costa Rica':'🇨🇷','Panama':'🇵🇦','Honduras':'🇭🇳','El Salvador':'🇸🇻','Jamaica':'🇯🇲','New Zealand':'🇳🇿','Indonesia':'🇮🇩','China PR':'🇨🇳','China':'🇨🇳','Iraq':'🇮🇶','Jordan':'🇯🇴','UAE':'🇦🇪','Scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Ireland':'🇮🇪','Czech Republic':'🇨🇿','Czechia':'🇨🇿','Slovakia':'🇸🇰','Romania':'🇷🇴','Greece':'🇬🇷','Slovenia':'🇸🇮','Iceland':'🇮🇸','Norway':'🇳🇴','Sweden':'🇸🇪','Finland':'🇫🇮','Israel':'🇮🇱','Georgia':'🇬🇪',"Côte d'Ivoire":'🇨🇮','Ivory Coast':'🇨🇮','South Africa':'🇿🇦','Algeria':'🇩🇿','Kenya':'🇰🇪','Guatemala':'🇬🇹','Albania':'🇦🇱','North Macedonia':'🇲🇰','Bosnia and Herzegovina':'🇧🇦'}
+  return nameMap[name] || '🏳️'
 }
 
 function stageLabel(s) {
@@ -719,9 +745,9 @@ function renderMatchCard(match) {
       </div>
     </div>
     <div class="match-body">
-      <div class="team"><div class="team-flag">${teamFlag(match.homeTeam?.name)}</div><div class="team-name">${home}</div></div>
+      <div class="team"><div class="team-flag">${teamFlag(match.homeTeam)}</div><div class="team-name">${home}</div></div>
       <div class="score-display">${scoreHTML}</div>
-      <div class="team"><div class="team-flag">${teamFlag(match.awayTeam?.name)}</div><div class="team-name">${away}</div></div>
+      <div class="team"><div class="team-flag">${teamFlag(match.awayTeam)}</div><div class="team-name">${away}</div></div>
     </div>
     ${tipsHTML}
   </div>`
@@ -850,7 +876,7 @@ function renderGroups() {
         <table class="group-table">
           <thead><tr><th>Csapat</th><th>M</th><th>Gy</th><th>D</th><th>V</th><th>Gk</th><th>Pt</th></tr></thead>
           <tbody>${g.table.map((r,i)=>`<tr class="${i<2?'qualified':''}">
-            <td>${teamFlag(r.team?.name)} ${r.team?.shortName||r.team?.name}</td>
+            <td>${teamFlag(r.team)} ${r.team?.shortName||r.team?.name}</td>
             <td>${r.playedGames}</td><td>${r.won}</td><td>${r.draw}</td><td>${r.lost}</td>
             <td>${r.goalsFor}:${r.goalsAgainst}</td><td><strong>${r.points}</strong></td>
           </tr>`).join('')}</tbody>
@@ -883,7 +909,7 @@ function renderGroups() {
       <table class="group-table">
         <thead><tr><th>Csapat</th><th>M</th><th>Gy</th><th>D</th><th>V</th><th>Gk</th><th>Pt</th></tr></thead>
         <tbody>${teams.map((t,i)=>`<tr class="${i<2?'qualified':''}">
-          <td>${teamFlag(t.name)} ${t.sn||t.name}</td>
+          <td>${teamFlag({name:t.name,tla:t.tla,area:t.area})} ${t.sn||t.name}</td>
           <td>${t.m}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
           <td>${t.gf}:${t.ga}</td><td><strong>${t.pts}</strong></td>
         </tr>`).join('')}</tbody>
@@ -917,11 +943,11 @@ function renderBracket() {
         const h=m.homeTeam?.shortName||m.homeTeam?.name||'TBD', a=m.awayTeam?.shortName||m.awayTeam?.name||'TBD'
         return `<div class="bracket-match">
           <div class="bracket-team ${hw?'winner':''}">
-            <span class="bracket-team-name">${teamFlag(m.homeTeam?.name)} ${h}</span>
+            <span class="bracket-team-name">${teamFlag(m.homeTeam)} ${h}</span>
             <span class="bracket-team-score">${fin&&sc?sc.home:''}</span>
           </div>
           <div class="bracket-team ${aw?'winner':''}">
-            <span class="bracket-team-name">${teamFlag(m.awayTeam?.name)} ${a}</span>
+            <span class="bracket-team-name">${teamFlag(m.awayTeam)} ${a}</span>
             <span class="bracket-team-score">${fin&&sc?sc.away:''}</span>
           </div>
         </div>`
