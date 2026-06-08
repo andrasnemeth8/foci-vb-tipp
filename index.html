@@ -1120,7 +1120,8 @@ function switchPlayerPrompt() {
 }
 
 function updateActivePlayerLabel() {
-  document.getElementById('active-player-label').textContent = state.activePlayer || 'Válassz játékost'
+  const el = document.getElementById('active-player-label')
+  if (el) el.textContent = state.activePlayer || 'Válassz játékost'
 }
 
 function renderPlayersSettings() {
