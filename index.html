@@ -126,6 +126,16 @@
   .standings-table tr:hover td { background: rgba(255,255,255,.03); }
   .rank-1 { color: var(--gold); font-weight: 900; }
   .rank-2 { color: #c0c0c0; font-weight: 700; }
+  .detail-player { border: 1px solid var(--border); border-radius: 10px; margin-bottom: .75rem; overflow: hidden; }
+  .detail-player-header { display: flex; justify-content: space-between; align-items: center; padding: .7rem 1rem; background: var(--card2); cursor: pointer; user-select: none; font-weight: 700; color: var(--gold); }
+  .detail-player-header:hover { background: rgba(255,255,255,.05); }
+  .detail-player-header .chevron { transition: transform .2s; font-size: .85rem; color: var(--muted); }
+  .detail-player-header.open .chevron { transform: rotate(180deg); }
+  .detail-player-body { display: none; padding: .5rem; }
+  .detail-player-body.open { display: block; }
+  .detail-tip-row { display: flex; align-items: center; gap: .5rem; padding: .4rem .5rem; border-radius: 6px; font-size: .82rem; flex-wrap: wrap; }
+  .detail-tip-row:nth-child(odd) { background: rgba(255,255,255,.02); }
+  .detail-tip-date { color: var(--muted); font-size: .75rem; min-width: 80px; }
   .rank-3 { color: #cd7f32; font-weight: 700; }
   .pts-cell { font-weight: 900; color: var(--gold); }
 
@@ -960,21 +970,36 @@ function renderStandings() {
     <td class="pts-cell">${r.pts}</td><td>${r.exact}</td><td>${r.correct}</td><td>${r.total}</td>
   </tr>`).join('')
 
-  document.getElementById('tips-detail').innerHTML = state.players.map(p => {
+  const sortedPlayers = [...results].map(r=>r.name)
+  document.getElementById('tips-detail').innerHTML = sortedPlayers.map(p => {
     const tm = state.matches.filter(m=>getSavedTip(m.id,p))
-    if (!tm.length) return `<div style="margin-bottom:1rem;color:var(--muted);font-size:.9rem;">${p}: Nincs tipp.</div>`
-    return `<div style="margin-bottom:1.5rem;">
-      <div style="font-weight:700;color:var(--gold);margin-bottom:.5rem;">👤 ${p}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:.5rem;">${tm.map(m=>{
-        const tip=getSavedTip(m.id,p), fs=getFinalScore(m), pts=fs?calcPoints(tip,fs):null
-        const h=m.homeTeam?.shortName||m.homeTeam?.name||'?', a=m.awayTeam?.shortName||m.awayTeam?.name||'?'
-        return `<span style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:.3rem .6rem;font-size:.8rem;">
-          ${h} <strong>${tip.home}–${tip.away}</strong> ${a}
-          ${fs?`<em style="color:var(--muted)">(${fs.home}–${fs.away})</em>`:''}
-          ${pts!==null?`<span class="tip-points ${pts===3?'pts-3':pts===1?'pts-1':'pts-0'}">${pts}pt</span>`:''}
-        </span>`
-      }).join('')}</div></div>`
+    if (!tm.length) return `<div class="detail-player"><div class="detail-player-header" onclick="toggleDetail(this)"><span>${p} <span style="font-weight:400;color:var(--muted);font-size:.8rem;">– Nincs tipp</span></span><span class="chevron">▼</span></div></div>`
+    const totalPts = tm.reduce((s,m)=>{ const fs=getFinalScore(m),tip=getSavedTip(m.id,p); return s+(fs&&tip?calcPoints(tip,fs):0) },0)
+    const rows = tm.map(m=>{
+      const tip=getSavedTip(m.id,p), fs=getFinalScore(m), pts=fs?calcPoints(tip,fs):null
+      const h=m.homeTeam?.shortName||m.homeTeam?.name||'?', a=m.awayTeam?.shortName||m.awayTeam?.name||'?'
+      const d=m.utcDate?new Date(m.utcDate).toLocaleDateString('hu-HU',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):''
+      return `<div class="detail-tip-row">
+        <span class="detail-tip-date">${d}</span>
+        <span style="flex:1">${h} <strong>${tip.home}–${tip.away}</strong> ${a}
+          ${fs?`<span style="color:var(--muted);font-size:.78rem;">(${fs.home}–${fs.away})</span>`:''}
+        </span>
+        ${pts!==null?`<span class="tip-points ${pts===3?'pts-3':pts===1?'pts-1':'pts-0'}">${pts}pt</span>`:'<span style="color:var(--muted);font-size:.75rem;">–</span>'}
+      </div>`
+    }).join('')
+    return `<div class="detail-player">
+      <div class="detail-player-header" onclick="toggleDetail(this)">
+        <span>${p} <span style="font-weight:400;font-size:.8rem;color:var(--muted);">${tm.length} tipp · ${totalPts}pt</span></span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="detail-player-body">${rows}</div>
+    </div>`
   }).join('')
+}
+
+function toggleDetail(header) {
+  header.classList.toggle('open')
+  header.nextElementSibling?.classList.toggle('open')
 }
 
 // ============================================================
