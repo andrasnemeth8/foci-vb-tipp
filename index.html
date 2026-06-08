@@ -322,6 +322,8 @@
           <button class="btn secondary" onclick="testApiKey()">🧪 Tesztelés</button>
         </div>
         <div id="api-test-result" style="margin-top:.75rem;font-size:.85rem;"></div>
+        <button class="btn secondary small" style="margin-top:.5rem" onclick="showTeamDebug()">🔍 Csapat debug</button>
+        <pre id="team-debug" style="display:none;margin-top:.75rem;font-size:.72rem;background:var(--bg);padding:.75rem;border-radius:8px;overflow:auto;max-height:200px;color:var(--muted)"></pre>
       </div>
 
       <div class="settings-card">
@@ -1030,6 +1032,14 @@ function renderPlayersSettings() {
 // ============================================================
 // BEÁLLÍTÁSOK
 // ============================================================
+function showTeamDebug() {
+  const el = document.getElementById('team-debug')
+  const m = state.matches[0]
+  if (!m) { el.textContent = 'Nincs betöltött meccs.'; el.style.display='block'; return }
+  el.textContent = JSON.stringify({ homeTeam: m.homeTeam, awayTeam: m.awayTeam }, null, 2)
+  el.style.display = 'block'
+}
+
 function saveApiKey() {
   const key = document.getElementById('api-key-input').value.trim()
   if (!key) { showToast('Add meg az API kulcsodat!'); return }
