@@ -177,9 +177,42 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .error-msg { background: rgba(230,57,70,.1); border: 1px solid var(--red); border-radius: 10px; padding: 1rem; color: #ff8a92; font-size: .9rem; margin-bottom: 1rem; }
 
+  /* Pixel Zlatan */
+  .pixel-zlatan { display:flex; align-items:center; margin-left:.5rem; }
+  .kick-leg { animation: kickLeg 2.4s ease-in-out infinite; transform-origin: 21px 28px; }
+  .ball-anim { animation: ballFly 2.4s ease-in-out infinite; }
+  .keeper-anim { animation: keeperDive 2.4s ease-in-out infinite; transform-origin: 172px 44px; }
+  .goal-text-anim { animation: goalFlash 2.4s ease-in-out infinite; transform-origin: 175px 12px; }
+  @keyframes kickLeg {
+    0%,100% { transform: rotate(-25deg); }
+    20% { transform: rotate(45deg); }
+    45% { transform: rotate(45deg); }
+    65% { transform: rotate(-25deg); }
+  }
+  @keyframes ballFly {
+    0% { transform: translate(28px, 22px); opacity:1; }
+    18% { transform: translate(28px, 22px); opacity:1; }
+    55% { transform: translate(100px, 2px); opacity:1; }
+    78% { transform: translate(168px, 28px); opacity:1; }
+    79% { transform: translate(168px, 28px); opacity:0; }
+    99% { transform: translate(28px, 22px); opacity:0; }
+    100% { transform: translate(28px, 22px); opacity:1; }
+  }
+  @keyframes keeperDive {
+    0%,55% { transform: translateY(0) rotate(0deg); }
+    75%,100% { transform: translateY(-14px) rotate(-35deg); }
+  }
+  @keyframes goalFlash {
+    0%,72% { opacity:0; transform: scale(.6); }
+    80% { opacity:1; transform: scale(1.3); }
+    90% { opacity:1; transform: scale(1); }
+    100% { opacity:0; transform: scale(1); }
+  }
+
   @media (max-width: 640px) {
     /* Header */
     header { padding: 0 .75rem; }
+    .pixel-zlatan { display:none; }
     .mascot-wrap { width: 36px; height: 36px; }
     .mascot-wrap svg { width: 36px; height: 36px; }
     .title-block h1 { font-size: 1rem; }
@@ -312,6 +345,67 @@
       <div class="refresh-indicator">
         <div class="dot" id="refresh-dot"></div>
         <span id="refresh-text">–</span>
+      </div>
+      <!-- Pixel Zlatan bicycle kick animation -->
+      <div class="pixel-zlatan" aria-hidden="true">
+        <svg viewBox="0 0 200 58" width="200" height="58" style="overflow:visible;shape-rendering:crispEdges">
+          <!-- Ground -->
+          <line x1="0" y1="55" x2="200" y2="55" stroke="#2a3550" stroke-width="1.5"/>
+          <!-- Goal posts -->
+          <line x1="155" y1="20" x2="199" y2="20" stroke="#d0d4e8" stroke-width="3"/>
+          <line x1="155" y1="20" x2="155" y2="55" stroke="#d0d4e8" stroke-width="3"/>
+          <!-- Net -->
+          <line x1="159" y1="20" x2="159" y2="55" stroke="#2a3a55" stroke-width="1"/>
+          <line x1="164" y1="20" x2="164" y2="55" stroke="#2a3a55" stroke-width="1"/>
+          <line x1="169" y1="20" x2="169" y2="55" stroke="#2a3a55" stroke-width="1"/>
+          <line x1="174" y1="20" x2="174" y2="55" stroke="#2a3a55" stroke-width="1"/>
+          <line x1="179" y1="20" x2="179" y2="55" stroke="#2a3a55" stroke-width="1"/>
+          <line x1="184" y1="20" x2="184" y2="55" stroke="#2a3a55" stroke-width="1"/>
+          <line x1="189" y1="20" x2="189" y2="55" stroke="#2a3a55" stroke-width="1"/>
+          <line x1="194" y1="20" x2="194" y2="55" stroke="#2a3a55" stroke-width="1"/>
+          <line x1="155" y1="25" x2="199" y2="25" stroke="#2a3a55" stroke-width="1"/>
+          <line x1="155" y1="31" x2="199" y2="31" stroke="#2a3a55" stroke-width="1"/>
+          <line x1="155" y1="37" x2="199" y2="37" stroke="#2a3a55" stroke-width="1"/>
+          <line x1="155" y1="43" x2="199" y2="43" stroke="#2a3a55" stroke-width="1"/>
+          <line x1="155" y1="49" x2="199" y2="49" stroke="#2a3a55" stroke-width="1"/>
+          <!-- Goalkeeper body -->
+          <g class="keeper-anim">
+            <rect x="150" y="32" width="6" height="14" rx="1" fill="#27ae60"/>
+            <circle cx="153" cy="28" r="4" fill="#fdbcb4"/>
+            <rect x="144" y="34" width="6" height="3" rx="1" fill="#27ae60"/>
+            <rect x="156" y="34" width="6" height="3" rx="1" fill="#27ae60"/>
+            <rect x="150" y="46" width="3" height="8" rx="1" fill="#1a7a3a"/>
+            <rect x="153" y="46" width="3" height="8" rx="1" fill="#1a7a3a"/>
+          </g>
+          <!-- Zlatan (inverted bicycle kick) -->
+          <!-- Head at bottom -->
+          <rect x="14" y="44" width="8" height="8" rx="2" fill="#fdbcb4"/>
+          <!-- Mohawk -->
+          <rect x="16" y="48" width="4" height="5" rx="1" fill="#f0b429"/>
+          <!-- Torso -->
+          <rect x="13" y="30" width="10" height="14" rx="2" fill="#006AA7"/>
+          <!-- Jersey 10 -->
+          <text x="18" y="40" text-anchor="middle" font-size="5" fill="white" font-weight="900" font-family="monospace">10</text>
+          <!-- Left arm -->
+          <rect x="4" y="36" width="9" height="3" rx="1" fill="#fdbcb4"/>
+          <!-- Right arm -->
+          <rect x="23" y="36" width="9" height="3" rx="1" fill="#fdbcb4"/>
+          <!-- Left leg (up, static) -->
+          <rect x="11" y="10" width="4" height="20" rx="1" fill="#FECC02"/>
+          <rect x="10" y="6" width="5" height="6" rx="1" fill="#1a1a2e"/>
+          <!-- Right leg (kicking — animated) -->
+          <g class="kick-leg">
+            <rect x="21" y="10" width="4" height="20" rx="1" fill="#FECC02"/>
+            <rect x="21" y="6" width="5" height="6" rx="1" fill="#1a1a2e"/>
+          </g>
+          <!-- Ball (animated along arc) -->
+          <g class="ball-anim">
+            <circle cx="0" cy="0" r="5" fill="white" stroke="#333" stroke-width=".8"/>
+            <path d="M-2,-3 L2,-3 L4,1 L1,4 L-3,3 L-4,-1 Z" fill="#222" opacity=".35"/>
+          </g>
+          <!-- GOL! text -->
+          <text class="goal-text-anim" x="175" y="14" text-anchor="middle" font-family="Arial Black,sans-serif" font-weight="900" font-size="11" fill="#f0b429">GOL!</text>
+        </svg>
       </div>
     </div>
   </div>
