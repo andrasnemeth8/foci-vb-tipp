@@ -104,7 +104,6 @@
   .tip-section-title { font-size: .75rem; color: var(--muted); margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .5px; }
   .tips-row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
   .tip-player-block { display: flex; align-items: center; gap: .4rem; background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: .3rem .5rem; }
-  .tip-player-block.is-me { border-color: var(--gold2); }
   .tip-player-name { font-size: .75rem; color: var(--muted); min-width: 60px; }
   .tip-input-group { display: flex; align-items: center; gap: .3rem; }
   .tip-input { width: 42px; text-align: center; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: .25rem; font-size: .9rem; font-weight: 700; outline: none; }
@@ -857,7 +856,7 @@ function renderMatchCard(match) {
               </div>
             </div>`
           }
-          return `<div class="tip-player-block ${isMe?'is-me':''}">
+          return `<div class="tip-player-block">
             <span class="tip-player-name">${p}</span>
             <div class="tip-input-group">
               <input type="number" class="tip-input" min="0" max="99" value="${saved?.home??''}"
