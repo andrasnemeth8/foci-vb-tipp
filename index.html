@@ -1244,8 +1244,8 @@ function renderPlayersSettings() {
     return
   }
   list.innerHTML = state.players.map(p=>`
-    <div class="player-item ${p===state.activePlayer?'active-player':''}">
-      <span class="player-item-name">${p===state.activePlayer?'▶ ':''}${p}</span>
+    <div class="player-item">
+      <span class="player-item-name">${p}</span>
       <div class="player-item-actions">
         <button class="btn secondary small" onclick="setActivePlayer('${p.replace(/'/g,"\\'")}')">Aktív</button>
         <button class="btn danger small" onclick="removePlayer('${p.replace(/'/g,"\\'")}')">✕</button>
