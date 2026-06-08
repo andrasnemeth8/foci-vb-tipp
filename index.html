@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FIFA VB 2026 – Tippverseny</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root {
     --bg: #0a0e1a;
@@ -411,7 +412,13 @@
       </table>
     </div>
     <div style="margin-top:2rem">
-      <h3 style="color:var(--gold);margin-bottom:1rem;">Részletes tippek</h3>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
+        <h3 style="color:var(--gold);margin:0;">Részletes tippek</h3>
+        <button onclick="exportToExcel()" style="display:flex;align-items:center;gap:.5rem;background:var(--card2);border:1px solid var(--border);color:var(--text);padding:.45rem .9rem;border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:600;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='var(--card2)'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportálás (.xlsx)
+        </button>
+      </div>
       <div id="tips-detail"></div>
     </div>
   </div>
@@ -995,6 +1002,51 @@ function renderStandings() {
       <div class="detail-player-body">${rows}</div>
     </div>`
   }).join('')
+}
+
+function exportToExcel() {
+  const wb = XLSX.utils.book_new()
+  const sortedPlayers = state.players.slice().sort((a,b) => {
+    const pts = p => state.matches.reduce((s,m)=>{ const fs=getFinalScore(m),t=getSavedTip(m.id,p); return s+(fs&&t?calcPoints(t,fs):0) },0)
+    const pa=pts(a), pb=pts(b)
+    return pb!==pa ? pb-pa : a.localeCompare(b)
+  })
+
+  // Summary sheet
+  const summaryRows = [['#','Játékos','Pont','Pontos tipp (3pt)','Helyes végeredmény (1pt)','Összes tipp']]
+  sortedPlayers.forEach((p,i) => {
+    let pts=0,exact=0,correct=0,total=0
+    state.matches.forEach(m => {
+      const fs=getFinalScore(m), tip=getSavedTip(m.id,p)
+      if (!tip) return
+      total++
+      if (fs) { const v=calcPoints(tip,fs); pts+=v; if(v===3)exact++; if(v===1)correct++ }
+    })
+    summaryRows.push([i+1, p, pts, exact, correct, total])
+  })
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summaryRows), 'Összesítő')
+
+  // One sheet per player
+  sortedPlayers.forEach(p => {
+    const rows = [['Dátum','Hazai','Vendég','Tipp (H)','Tipp (V)','Végeredmény (H)','Végeredmény (V)','Pont']]
+    state.matches.filter(m=>getSavedTip(m.id,p)).forEach(m => {
+      const tip=getSavedTip(m.id,p), fs=getFinalScore(m)
+      const d=m.utcDate?new Date(m.utcDate).toLocaleString('hu-HU',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):''
+      rows.push([
+        d,
+        m.homeTeam?.shortName||m.homeTeam?.name||'?',
+        m.awayTeam?.shortName||m.awayTeam?.name||'?',
+        tip.home, tip.away,
+        fs?.home??'', fs?.away??'',
+        fs ? calcPoints(tip,fs) : ''
+      ])
+    })
+    const name = p.length>31 ? p.slice(0,31) : p
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), name)
+  })
+
+  const date = new Date().toISOString().slice(0,10)
+  XLSX.writeFile(wb, `VB2026_tippek_${date}.xlsx`)
 }
 
 function toggleDetail(header) {
