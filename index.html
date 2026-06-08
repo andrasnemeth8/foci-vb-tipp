@@ -804,7 +804,7 @@ function renderMatchCard(match) {
               <span class="tip-sep">–</span>
               <input type="number" class="tip-input" min="0" max="99" value="${saved?.away??''}"
                 id="tip-${match.id}-${p}-a" ${isFinished?'readonly':''}>
-              ${!isFinished && isMe ? `<button class="tip-save-btn" onclick="handleSaveTip(${match.id},'${p.replace(/'/g,"\\'")}')">OK</button>` : ''}
+              ${!isFinished ? `<button class="tip-save-btn" onclick="handleSaveTip(${match.id},'${p.replace(/'/g,"\\'")}')">OK</button>` : ''}
               ${ptsHTML}
               ${saved && !isFinished ? `<span class="tip-saved">✓</span>` : ''}
             </div>
