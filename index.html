@@ -805,7 +805,7 @@ function renderMatchCard(match) {
             </div>`
           }
           return `<div class="tip-player-block ${isMe?'is-me':''}">
-            <span class="tip-player-name">${p}${isMe?' 👤':''}</span>
+            <span class="tip-player-name">${p}</span>
             <div class="tip-input-group">
               <input type="number" class="tip-input" min="0" max="99" value="${saved?.home??''}"
                 id="tip-${match.id}-${p}-h" ${isLive?'readonly':''}>
