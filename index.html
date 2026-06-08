@@ -529,6 +529,7 @@
 // ============================================================
 const SUPABASE_URL = 'https://txagipunkujjcetnlffj.supabase.co'
 const SUPABASE_KEY = 'sb_publishable_DmCwF-hNEVAeSC4NGH8Yjw__F50ZdRg'
+const ROOM = 'a'
 const { createClient } = supabase
 const db = createClient(SUPABASE_URL, SUPABASE_KEY)
 
@@ -562,18 +563,18 @@ const state = {
 // SUPABASE – játékosok
 // ============================================================
 async function dbLoadPlayers() {
-  const { data, error } = await db.from('players').select('name').order('created_at')
+  const { data, error } = await db.from('players').select('name').eq('room', ROOM).order('created_at')
   if (error) throw error
   return data.map(r => r.name)
 }
 
 async function dbAddPlayer(name) {
-  const { error } = await db.from('players').insert({ name })
+  const { error } = await db.from('players').insert({ name, room: ROOM })
   if (error) throw error
 }
 
 async function dbRemovePlayer(name) {
-  const { error } = await db.from('players').delete().eq('name', name)
+  const { error } = await db.from('players').delete().eq('name', name).eq('room', ROOM)
   if (error) throw error
 }
 
@@ -581,7 +582,7 @@ async function dbRemovePlayer(name) {
 // SUPABASE – tippek
 // ============================================================
 async function dbLoadTips() {
-  const { data, error } = await db.from('tips').select('*')
+  const { data, error } = await db.from('tips').select('*').eq('room', ROOM)
   if (error) throw error
   const tips = {}
   data.forEach(r => {
@@ -595,6 +596,7 @@ async function dbSaveTip(matchId, playerName, home, away) {
   const { error } = await db.from('tips').upsert({
     player_name: playerName,
     match_id: matchId,
+    room: ROOM,
     home_score: home,
     away_score: away,
     updated_at: new Date().toISOString()
@@ -603,20 +605,20 @@ async function dbSaveTip(matchId, playerName, home, away) {
 }
 
 async function dbDeleteTips() {
-  const { error } = await db.from('tips').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+  const { error } = await db.from('tips').delete().eq('room', ROOM)
   if (error) throw error
 }
 
 async function dbDeleteAll() {
-  await db.from('tips').delete().neq('id', '00000000-0000-0000-0000-000000000000')
-  await db.from('players').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+  await db.from('tips').delete().eq('room', ROOM)
+  await db.from('players').delete().eq('room', ROOM)
 }
 
 // ============================================================
 // REAL-TIME
 // ============================================================
 function subscribeRealtime() {
-  db.channel('vb26-changes')
+  db.channel(`vb26-changes-${ROOM}`)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'tips' }, payload => {
       const r = payload.new
       if (payload.eventType === 'DELETE') {
