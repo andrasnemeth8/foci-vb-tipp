@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIFA VB 2026 – Tippverseny</title>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --card: #131929;
+    --card2: #1a2238;
+    --border: #2a3550;
+    --gold: #f0b429;
+    --gold2: #c8941a;
+    --red: #e63946;
+    --blue: #1e6fbf;
+    --green: #2ecc71;
+    --text: #e8eaf0;
+    --muted: #8892a4;
+    --live: #ff4757;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #0a0e1a 0%, #1a2a4a 50%, #0a0e1a 100%);
+    border-bottom: 2px solid var(--gold);
+    padding: 0 1.5rem;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; padding: .75rem 0; }
+  .mascot-wrap { position: relative; width: 56px; height: 56px; flex-shrink: 0; }
+  .mascot-wrap svg { width: 56px; height: 56px; }
+  .title-block h1 { font-size: 1.4rem; font-weight: 800; color: var(--gold); letter-spacing: .5px; line-height: 1.1; }
+  .title-block p { font-size: .75rem; color: var(--muted); }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 1rem; }
+  .refresh-indicator { display: flex; align-items: center; gap: .4rem; font-size: .75rem; color: var(--muted); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .dot.live { background: var(--live); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+  .player-badge { background: var(--card2); border: 1px solid var(--border); border-radius: 20px; padding: .3rem .8rem; font-size: .8rem; cursor: pointer; display: flex; align-items: center; gap: .4rem; }
+  .player-badge:hover { border-color: var(--gold); }
+
+  /* TABS */
+  nav { background: var(--card); border-bottom: 1px solid var(--border); }
+  .tabs { max-width: 1400px; margin: 0 auto; display: flex; padding: 0 1.5rem; overflow-x: auto; }
+  .tab { padding: .9rem 1.4rem; font-size: .9rem; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; transition: all .2s; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+  /* MAIN */
+  main { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* API KEY NOTICE */
+  .api-notice { background: linear-gradient(135deg, #1a2238, #1a1a2e); border: 1px solid var(--gold); border-radius: 12px; padding: 2rem; text-align: center; margin-bottom: 1.5rem; }
+  .api-notice h2 { color: var(--gold); margin-bottom: .5rem; }
+  .api-notice p { color: var(--muted); margin-bottom: 1rem; }
+  .api-notice a { color: var(--blue); }
+  .btn { display: inline-flex; align-items: center; gap: .4rem; background: var(--gold); color: #000; border: none; border-radius: 8px; padding: .6rem 1.2rem; font-weight: 700; font-size: .9rem; cursor: pointer; transition: background .2s; }
+  .btn:hover { background: var(--gold2); }
+  .btn.secondary { background: var(--card2); color: var(--text); border: 1px solid var(--border); }
+  .btn.secondary:hover { border-color: var(--gold); }
+  .btn.danger { background: var(--red); color: #fff; }
+  .btn.small { padding: .35rem .8rem; font-size: .8rem; }
+
+  /* FILTERS */
+  .filters { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.5rem; align-items: center; }
+  .filter-group { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .filter-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); border-radius: 20px; padding: .35rem .9rem; font-size: .8rem; cursor: pointer; transition: all .2s; }
+  .filter-btn:hover { color: var(--text); border-color: var(--muted); }
+  .filter-btn.active { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700; }
+  .search-input { background: var(--card); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: .4rem .8rem; font-size: .85rem; outline: none; min-width: 180px; }
+  .search-input:focus { border-color: var(--gold); }
+  .search-input::placeholder { color: var(--muted); }
+
+  /* MATCH CARDS */
+  .matches-grid { display: flex; flex-direction: column; gap: .75rem; }
+  .match-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    transition: border-color .2s;
+  }
+  .match-card:hover { border-color: #3a4a65; }
+  .match-card.live-match { border-color: var(--live); }
+  .match-header { display: flex; align-items: center; justify-content: space-between; padding: .6rem 1rem; background: var(--card2); border-bottom: 1px solid var(--border); }
+  .match-stage { font-size: .72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+  .match-time { font-size: .75rem; }
+  .status-badge { padding: .2rem .6rem; border-radius: 10px; font-size: .7rem; font-weight: 700; }
+  .status-SCHEDULED { background: #1a2a4a; color: #7ca3d4; }
+  .status-LIVE, .status-IN_PLAY, .status-PAUSED { background: rgba(255,71,87,.15); color: var(--live); animation: pulse 2s infinite; }
+  .status-FINISHED { background: #1a2e1a; color: #5cb85c; }
+  .status-TIMED { background: #1a2a4a; color: #7ca3d4; }
+  .match-body { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; padding: 1rem; }
+  .team { display: flex; flex-direction: column; align-items: center; gap: .4rem; text-align: center; }
+  .team-flag { font-size: 2rem; line-height: 1; }
+  .team-name { font-size: .9rem; font-weight: 700; }
+  .score-display { text-align: center; }
+  .score-main { font-size: 2rem; font-weight: 900; color: var(--gold); letter-spacing: 2px; }
+  .score-vs { font-size: 1.1rem; color: var(--muted); }
+  .score-minute { font-size: .75rem; color: var(--live); margin-top: .2rem; }
+
+  /* TIP SECTION */
+  .tip-section { border-top: 1px solid var(--border); padding: .75rem 1rem; background: rgba(255,255,255,.02); }
+  .tip-section-title { font-size: .75rem; color: var(--muted); margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .5px; }
+  .tips-row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  .tip-player-block { display: flex; align-items: center; gap: .4rem; background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: .3rem .5rem; }
+  .tip-player-name { font-size: .75rem; color: var(--muted); min-width: 60px; }
+  .tip-input-group { display: flex; align-items: center; gap: .3rem; }
+  .tip-input { width: 42px; text-align: center; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: .25rem; font-size: .9rem; font-weight: 700; outline: none; }
+  .tip-input:focus { border-color: var(--gold); }
+  .tip-sep { color: var(--muted); font-weight: 700; }
+  .tip-save-btn { background: var(--gold); color: #000; border: none; border-radius: 6px; padding: .25rem .6rem; font-size: .75rem; font-weight: 700; cursor: pointer; }
+  .tip-save-btn:hover { background: var(--gold2); }
+  .tip-saved { font-size: .75rem; color: var(--green); }
+  .tip-points { font-size: .72rem; font-weight: 700; padding: .15rem .45rem; border-radius: 10px; }
+  .pts-3 { background: rgba(46,204,113,.2); color: var(--green); }
+  .pts-1 { background: rgba(240,180,41,.2); color: var(--gold); }
+  .pts-0 { background: rgba(136,146,164,.1); color: var(--muted); }
+
+  /* STANDINGS TAB */
+  .standings-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+  .standings-header h2 { font-size: 1.3rem; color: var(--gold); }
+  .standings-table { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem; }
+  .standings-table table { width: 100%; border-collapse: collapse; }
+  .standings-table th { background: var(--card2); padding: .65rem 1rem; text-align: left; font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .standings-table td { padding: .65rem 1rem; border-top: 1px solid var(--border); font-size: .9rem; }
+  .standings-table tr:hover td { background: rgba(255,255,255,.03); }
+  .rank-1 { color: var(--gold); font-weight: 900; }
+  .rank-2 { color: #c0c0c0; font-weight: 700; }
+  .rank-3 { color: #cd7f32; font-weight: 700; }
+  .pts-cell { font-weight: 900; color: var(--gold); }
+
+  /* BRACKET TAB */
+  .bracket-wrap { overflow-x: auto; padding: 1rem 0; }
+  .bracket { display: flex; gap: 0; min-width: 900px; }
+  .bracket-round { flex: 1; display: flex; flex-direction: column; padding: 0 .5rem; }
+  .bracket-round-title { text-align: center; font-size: .75rem; color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; padding: .5rem; margin-bottom: 1rem; background: var(--card2); border-radius: 8px; }
+  .bracket-matches { display: flex; flex-direction: column; justify-content: space-around; flex: 1; gap: .5rem; }
+  .bracket-match { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; min-height: 70px; }
+  .bracket-match:hover { border-color: var(--gold); }
+  .bracket-team { display: flex; align-items: center; justify-content: space-between; padding: .4rem .7rem; gap: .5rem; }
+  .bracket-team + .bracket-team { border-top: 1px solid var(--border); }
+  .bracket-team-name { font-size: .8rem; font-weight: 600; flex: 1; }
+  .bracket-team-score { font-size: .85rem; font-weight: 900; color: var(--gold); min-width: 18px; text-align: right; }
+  .bracket-team.winner { background: rgba(240,180,41,.08); }
+  .bracket-team.winner .bracket-team-name { color: var(--gold); }
+
+  /* SETTINGS */
+  .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.5rem; }
+  .settings-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+  .settings-card h3 { color: var(--gold); font-size: 1rem; margin-bottom: 1rem; padding-bottom: .75rem; border-bottom: 1px solid var(--border); }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: .4rem; }
+  .form-input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: .6rem .8rem; font-size: .9rem; outline: none; }
+  .form-input:focus { border-color: var(--gold); }
+  .form-select { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: .6rem .8rem; font-size: .9rem; outline: none; cursor: pointer; }
+  .players-list { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; max-height: 220px; overflow-y: auto; }
+  .player-item { display: flex; align-items: center; justify-content: space-between; background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: .5rem .75rem; }
+  .player-item.active-player { border-color: var(--gold); }
+  .player-item-name { font-weight: 600; font-size: .9rem; }
+  .player-item-actions { display: flex; gap: .4rem; }
+
+  /* TOAST */
+  #toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: var(--card2); border: 1px solid var(--gold); color: var(--text); padding: .75rem 1.5rem; border-radius: 10px; font-size: .9rem; z-index: 9999; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  #toast.show { opacity: 1; }
+
+  /* LOADING */
+  .loading { text-align: center; padding: 3rem; color: var(--muted); }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 1rem; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-msg { background: rgba(230,57,70,.1); border: 1px solid var(--red); border-radius: 10px; padding: 1rem; color: #ff8a92; font-size: .9rem; margin-bottom: 1rem; }
+
+  /* GROUPS GRID */
+  .groups-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+  .group-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .group-card-title { background: var(--card2); padding: .6rem 1rem; font-size: .8rem; font-weight: 700; color: var(--gold); text-transform: uppercase; }
+  .group-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  .group-table th { padding: .35rem .6rem; text-align: center; color: var(--muted); font-size: .7rem; }
+  .group-table th:first-child { text-align: left; }
+  .group-table td { padding: .4rem .6rem; border-top: 1px solid var(--border); text-align: center; }
+  .group-table td:first-child { text-align: left; font-weight: 600; }
+  .group-table tr.qualified td { background: rgba(46,204,113,.05); }
+  .group-table tr.qualified td:first-child { border-left: 3px solid var(--green); }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .title-block h1 { font-size: 1.1rem; }
+    .match-body { grid-template-columns: 1fr auto 1fr; gap: .5rem; padding: .75rem; }
+    .team-name { font-size: .8rem; }
+    .score-main { font-size: 1.5rem; }
+    .team-flag { font-size: 1.5rem; }
+    main { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<header>
+  <div class="header-inner">
+    <div class="mascot-wrap">
+      <!-- Teo, a 2026-os VB kabala (armadillo) SVG illusztráció -->
+      <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="28" cy="28" r="27" fill="#1a2a4a" stroke="#f0b429" stroke-width="1.5"/>
+        <!-- test -->
+        <ellipse cx="28" cy="32" rx="14" ry="10" fill="#f0b429"/>
+        <!-- páncél vonalak -->
+        <path d="M18 28 Q28 24 38 28" stroke="#c8941a" stroke-width="1.2" fill="none"/>
+        <path d="M16 32 Q28 28 40 32" stroke="#c8941a" stroke-width="1.2" fill="none"/>
+        <!-- fej -->
+        <ellipse cx="28" cy="20" rx="7" ry="6" fill="#f0b429"/>
+        <!-- szemek -->
+        <circle cx="25" cy="19" r="1.5" fill="#0a0e1a"/>
+        <circle cx="31" cy="19" r="1.5" fill="#0a0e1a"/>
+        <circle cx="25.5" cy="18.5" r=".5" fill="white"/>
+        <circle cx="31.5" cy="18.5" r=".5" fill="white"/>
+        <!-- orr -->
+        <ellipse cx="28" cy="21.5" rx="1.5" ry="1" fill="#c8941a"/>
+        <!-- fül -->
+        <ellipse cx="21" cy="16" rx="2.5" ry="3.5" fill="#f0b429" transform="rotate(-15 21 16)"/>
+        <ellipse cx="35" cy="16" rx="2.5" ry="3.5" fill="#f0b429" transform="rotate(15 35 16)"/>
+        <!-- láb -->
+        <ellipse cx="20" cy="41" rx="4" ry="2.5" fill="#c8941a"/>
+        <ellipse cx="36" cy="41" rx="4" ry="2.5" fill="#c8941a"/>
+        <!-- farok -->
+        <path d="M42 34 Q50 30 48 22" stroke="#f0b429" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <!-- focilabda -->
+        <circle cx="14" cy="40" r="5" fill="white" stroke="#0a0e1a" stroke-width=".5"/>
+        <path d="M14 35 L14 37 M11 37 L16 38 M11 42 L16 42 M14 45 L14 43" stroke="#0a0e1a" stroke-width=".8"/>
+      </svg>
+    </div>
+    <div class="title-block">
+      <h1>FIFA VB 2026</h1>
+      <p>Tippverseny – USA • Kanada • Mexikó</p>
+    </div>
+    <div class="header-right">
+      <div class="refresh-indicator">
+        <div class="dot" id="refresh-dot"></div>
+        <span id="refresh-text">–</span>
+      </div>
+      <div class="player-badge" onclick="switchPlayerPrompt()" title="Aktív játékos váltása">
+        👤 <span id="active-player-label">Válassz játékost</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="tabs">
+    <div class="tab active" data-tab="tips">⚽ Tippek</div>
+    <div class="tab" data-tab="standings">🏆 Pontszámok</div>
+    <div class="tab" data-tab="groups">📊 Csoportok</div>
+    <div class="tab" data-tab="bracket">🔱 Ágdiagram</div>
+    <div class="tab" data-tab="settings">⚙️ Beállítások</div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- TIPPEK TAB -->
+  <div class="tab-content active" id="tab-tips">
+    <div id="api-notice-tips" class="api-notice" style="display:none">
+      <h2>🔑 API kulcs szükséges</h2>
+      <p>A meccsinformációkhoz ingyenes API kulcs kell a <a href="https://www.football-data.org/client/register" target="_blank">football-data.org</a> oldalról.</p>
+      <p style="margin-top:.5rem; font-size:.85rem;">Regisztráció után az API kulcsot a <strong>Beállítások</strong> fülön add meg.</p>
+      <button class="btn" style="margin-top:1rem" onclick="switchTab('settings')">⚙️ Beállítások megnyitása</button>
+    </div>
+    <div id="tips-filters" class="filters" style="display:none">
+      <div class="filter-group" id="status-filters">
+        <button class="filter-btn active" data-filter="status" data-value="all">Összes</button>
+        <button class="filter-btn" data-filter="status" data-value="SCHEDULED">Közelgő</button>
+        <button class="filter-btn" data-filter="status" data-value="LIVE">🔴 Élő</button>
+        <button class="filter-btn" data-filter="status" data-value="FINISHED">Befejezett</button>
+      </div>
+      <div class="filter-group" id="stage-filters"></div>
+      <input type="text" class="search-input" id="team-search" placeholder="🔍 Csapat keresése..." oninput="applyFilters()">
+    </div>
+    <div id="matches-loading" class="loading"><div class="spinner"></div>Meccsek betöltése...</div>
+    <div id="matches-error" class="error-msg" style="display:none"></div>
+    <div id="matches-container" class="matches-grid" style="display:none"></div>
+    <div id="no-matches" style="display:none; text-align:center; padding:3rem; color:var(--muted);">Nincs találat a szűrési feltételekre.</div>
+  </div>
+
+  <!-- PONTSZÁMOK TAB -->
+  <div class="tab-content" id="tab-standings">
+    <div class="standings-header">
+      <h2>🏆 Tippverseny állása</h2>
+      <div style="font-size:.8rem;color:var(--muted);">Pontozás: pontos eredmény = 3pt, helyes végeredmény (győztes/döntetlen) = 1pt</div>
+    </div>
+    <div class="standings-table">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Játékos</th>
+          <th>Pontok</th><th>Pontos tipp</th><th>Helyes végeredmény</th><th>Összes tipp</th>
+        </tr></thead>
+        <tbody id="standings-body"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:2rem">
+      <h3 style="color:var(--gold);margin-bottom:1rem;">Tippek részletezése</h3>
+      <div id="tips-detail"></div>
+    </div>
+  </div>
+
+  <!-- CSOPORTOK TAB -->
+  <div class="tab-content" id="tab-groups">
+    <div style="margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+      <h2 style="color:var(--gold);font-size:1.3rem;">📊 Csoport táblázatok</h2>
+      <div id="api-notice-groups-small" style="display:none;font-size:.8rem;color:var(--muted);">API kulcs szükséges a valós adatokhoz</div>
+    </div>
+    <div id="groups-loading" class="loading"><div class="spinner"></div>Betöltés...</div>
+    <div id="groups-container" class="groups-grid" style="display:none"></div>
+  </div>
+
+  <!-- ÁGDIAGRAM TAB -->
+  <div class="tab-content" id="tab-bracket">
+    <div style="margin-bottom:1.5rem;">
+      <h2 style="color:var(--gold);font-size:1.3rem;margin-bottom:.3rem;">🔱 Kieséses szakasz</h2>
+      <p style="font-size:.8rem;color:var(--muted);">Az ágdiagram az API adatai alapján frissül automatikusan.</p>
+    </div>
+    <div id="bracket-loading" class="loading"><div class="spinner"></div>Betöltés...</div>
+    <div id="bracket-container" class="bracket-wrap" style="display:none">
+      <div class="bracket" id="bracket-inner"></div>
+    </div>
+    <div id="bracket-placeholder" style="display:none;text-align:center;padding:3rem;color:var(--muted);">
+      <div style="font-size:3rem;margin-bottom:1rem;">🏆</div>
+      <div>A kieséses szakasz a csoportkör után jelenik meg.</div>
+    </div>
+  </div>
+
+  <!-- BEÁLLÍTÁSOK TAB -->
+  <div class="tab-content" id="tab-settings">
+    <div class="settings-grid">
+
+      <div class="settings-card">
+        <h3>🔑 API konfiguráció</h3>
+        <div class="form-group">
+          <label>football-data.org API kulcs</label>
+          <input type="password" class="form-input" id="api-key-input" placeholder="Illeszd be az API kulcsodat...">
+        </div>
+        <p style="font-size:.78rem;color:var(--muted);margin-bottom:1rem;">
+          Ingyenes kulcsért regisztrálj: <a href="https://www.football-data.org/client/register" target="_blank" style="color:var(--blue)">football-data.org</a>
+        </p>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          <button class="btn" onclick="saveApiKey()">💾 Mentés</button>
+          <button class="btn secondary" onclick="testApiKey()">🧪 Tesztelés</button>
+        </div>
+        <div id="api-test-result" style="margin-top:.75rem;font-size:.85rem;"></div>
+      </div>
+
+      <div class="settings-card">
+        <h3>👥 Játékosok kezelése</h3>
+        <div class="players-list" id="players-list"></div>
+        <div class="form-group">
+          <label>Új játékos neve</label>
+          <div style="display:flex;gap:.5rem;">
+            <input type="text" class="form-input" id="new-player-input" placeholder="Játékos neve..." maxlength="30" onkeydown="if(event.key==='Enter')addPlayer()">
+            <button class="btn" onclick="addPlayer()">➕</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>🔄 Automatikus frissítés</h3>
+        <div class="form-group">
+          <label>Frissítési időköz</label>
+          <select class="form-select" id="refresh-interval-select" onchange="updateRefreshInterval()">
+            <option value="30">30 másodperc</option>
+            <option value="60" selected>1 perc</option>
+            <option value="120">2 perc</option>
+            <option value="300">5 perc</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          <button class="btn secondary" onclick="manualRefresh()">🔄 Manuális frissítés</button>
+        </div>
+        <div id="last-refresh-info" style="margin-top:.75rem;font-size:.8rem;color:var(--muted);"></div>
+      </div>
+
+      <div class="settings-card">
+        <h3>ℹ️ Pontozási rendszer</h3>
+        <div style="font-size:.85rem;color:var(--muted);line-height:1.8;">
+          <div>🥇 <strong style="color:var(--text)">3 pont</strong> – Pontos eredmény (pl. 2-1 → 2-1)</div>
+          <div>✅ <strong style="color:var(--text)">1 pont</strong> – Helyes végeredmény (győztes vagy döntetlen)</div>
+          <div>❌ <strong style="color:var(--text)">0 pont</strong> – Téves tipp</div>
+          <div style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)">
+            <div>A pontok automatikusan számolódnak a meccsek lezárása után.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <h3>🗑️ Adatok törlése</h3>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem;">Figyelem! A törlés nem visszavonható.</p>
+        <div style="display:flex;flex-direction:column;gap:.5rem;">
+          <button class="btn danger small" onclick="if(confirm('Biztosan törlöd az összes tippet?'))clearTips()">Összes tipp törlése</button>
+          <button class="btn danger small" onclick="if(confirm('Biztosan törlöd az összes adatot?'))clearAll()">Minden adat törlése</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ============================================================
+// STORAGE
+// ============================================================
+const Store = {
+  get: k => { try { return JSON.parse(localStorage.getItem('vb26_'+k)); } catch { return null; } },
+  set: (k, v) => localStorage.setItem('vb26_'+k, JSON.stringify(v)),
+  remove: k => localStorage.removeItem('vb26_'+k)
+};
+
+// ============================================================
+// STATE
+// ============================================================
+const state = {
+  matches: [],
+  standings: null,
+  filters: { status: 'all', stage: 'all', search: '' },
+  players: Store.get('players') || [],
+  activePlayer: Store.get('activePlayer') || null,
+  tips: Store.get('tips') || {},
+  apiKey: Store.get('apiKey') || '',
+  refreshInterval: Store.get('refreshInterval') || 60,
+  refreshTimer: null,
+  lastFetch: null,
+  cache: {}
+};
+
+// ============================================================
+// API
+// ============================================================
+const API_BASE = 'https://api.football-data.org/v4';
+const COMP = 'WC';
+
+async function apiFetch(path, useCache = true) {
+  const key = path;
+  const now = Date.now();
+  if (useCache && state.cache[key] && now - state.cache[key].ts < 30000) {
+    return state.cache[key].data;
+  }
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { 'X-Auth-Token': state.apiKey }
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `HTTP ${res.status}`);
+  }
+  const data = await res.json();
+  state.cache[key] = { ts: now, data };
+  return data;
+}
+
+async function loadMatches() {
+  if (!state.apiKey) return null;
+  try {
+    const data = await apiFetch(`/competitions/${COMP}/matches`);
+    return data.matches || [];
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+}
+
+async function loadStandings() {
+  if (!state.apiKey) return null;
+  try {
+    const data = await apiFetch(`/competitions/${COMP}/standings`);
+    return data.standings || [];
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+// ============================================================
+// REFRESH
+// ============================================================
+function startAutoRefresh() {
+  if (state.refreshTimer) clearInterval(state.refreshTimer);
+  state.refreshTimer = setInterval(refreshAll, state.refreshInterval * 1000);
+  updateRefreshUI('next');
+}
+
+async function refreshAll() {
+  if (!state.apiKey) return;
+  updateRefreshUI('loading');
+  try {
+    const matches = await loadMatches();
+    if (matches) {
+      state.matches = matches;
+      renderMatches();
+    }
+    const standings = await loadStandings();
+    if (standings) {
+      state.standings = standings;
+      renderGroups();
+    }
+    state.lastFetch = new Date();
+    updateRefreshUI('ok');
+    renderStandings();
+    renderBracket();
+  } catch(e) {
+    updateRefreshUI('error');
+    showMatchError(e.message);
+  }
+}
+
+async function manualRefresh() {
+  state.cache = {};
+  await refreshAll();
+  showToast('Adatok frissítve!');
+}
+
+function updateRefreshUI(state_) {
+  const dot = document.getElementById('refresh-dot');
+  const txt = document.getElementById('refresh-text');
+  if (state_ === 'loading') { dot.className='dot live'; txt.textContent='Frissítés...'; }
+  else if (state_ === 'ok') {
+    dot.className='dot'; dot.style.background='var(--green)';
+    const t = state.lastFetch;
+    txt.textContent = t ? `${t.getHours().toString().padStart(2,'0')}:${t.getMinutes().toString().padStart(2,'0')}` : '–';
+    document.getElementById('last-refresh-info').textContent = `Utoljára frissítve: ${t?.toLocaleTimeString('hu-HU')}`;
+  } else if (state_ === 'error') { dot.className='dot'; dot.style.background='var(--red)'; txt.textContent='Hiba'; }
+  else { dot.className='dot'; txt.textContent='–'; }
+  const hasLive = (state.matches || []).some(m => ['IN_PLAY','PAUSED','LIVE'].includes(m.status));
+  if (hasLive) dot.className='dot live';
+}
+
+function updateRefreshInterval() {
+  state.refreshInterval = parseInt(document.getElementById('refresh-interval-select').value);
+  Store.set('refreshInterval', state.refreshInterval);
+  startAutoRefresh();
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-'+id));
+}
+
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => switchTab(t.dataset.tab));
+});
+
+// ============================================================
+// FILTERS
+// ============================================================
+document.querySelectorAll('[data-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const group = btn.dataset.filter;
+    document.querySelectorAll(`[data-filter="${group}"]`).forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.filters[group] = btn.dataset.value;
+    applyFilters();
+  });
+});
+
+function applyFilters() {
+  state.filters.search = document.getElementById('team-search')?.value?.toLowerCase() || '';
+  renderMatches();
+}
+
+function getFilteredMatches() {
+  return state.matches.filter(m => {
+    const { status, stage, search } = state.filters;
+    if (status !== 'all') {
+      const liveStatuses = ['IN_PLAY', 'PAUSED', 'LIVE'];
+      if (status === 'LIVE' && !liveStatuses.includes(m.status)) return false;
+      if (status === 'SCHEDULED' && !['SCHEDULED','TIMED'].includes(m.status)) return false;
+      if (status === 'FINISHED' && m.status !== 'FINISHED') return false;
+    }
+    if (stage !== 'all' && m.stage !== stage) return false;
+    if (search) {
+      const h = m.homeTeam?.shortName?.toLowerCase() || m.homeTeam?.name?.toLowerCase() || '';
+      const a = m.awayTeam?.shortName?.toLowerCase() || m.awayTeam?.name?.toLowerCase() || '';
+      if (!h.includes(search) && !a.includes(search)) return false;
+    }
+    return true;
+  });
+}
+
+// ============================================================
+// MATCH RENDERING
+// ============================================================
+function teamFlag(name) {
+  const flags = {
+    'USA':'🇺🇸','United States':'🇺🇸','Brazil':'🇧🇷','Argentina':'🇦🇷','France':'🇫🇷',
+    'Germany':'🇩🇪','England':'󠁧󠁢󠁥󠁮󠁧󠁿🏴','Spain':'🇪🇸','Portugal':'🇵🇹','Netherlands':'🇳🇱',
+    'Belgium':'🇧🇪','Croatia':'🇭🇷','Morocco':'🇲🇦','Senegal':'🇸🇳','Japan':'🇯🇵',
+    'South Korea':'🇰🇷','Mexico':'🇲🇽','Canada':'🇨🇦','Australia':'🇦🇺','Poland':'🇵🇱',
+    'Switzerland':'🇨🇭','Denmark':'🇩🇰','Uruguay':'🇺🇾','Colombia':'🇨🇴','Ecuador':'🇪🇨',
+    'Saudi Arabia':'🇸🇦','Iran':'🇮🇷','Tunisia':'🇹🇳','Ghana':'🇬🇭','Cameroon':'🇨🇲',
+    'Serbia':'🇷🇸','Wales':'🏴󠁧󠁢󠁷󠁬󠁳󠁿','Qatar':'🇶🇦','Italy':'🇮🇹','Ukraine':'🇺🇦',
+    'Hungary':'🇭🇺','Austria':'🇦🇹','Turkey':'🇹🇷','Egypt':'🇪🇬','Nigeria':'🇳🇬',
+    'Chile':'🇨🇱','Peru':'🇵🇪','Paraguay':'🇵🇾','Bolivia':'🇧🇴','Venezuela':'🇻🇪',
+    'Costa Rica':'🇨🇷','Panama':'🇵🇦','Honduras':'🇭🇳','El Salvador':'🇸🇻',
+    'Jamaica':'🇯🇲','Trinidad and Tobago':'🇹🇹','New Zealand':'🇳🇿','Fiji':'🇫🇯',
+    'Indonesia':'🇮🇩','Thailand':'🇹🇭','Vietnam':'🇻🇳','China PR':'🇨🇳','China':'🇨🇳',
+    'India':'🇮🇳','Iraq':'🇮🇶','Jordan':'🇯🇴','UAE':'🇦🇪','Bahrain':'🇧🇭','Oman':'🇴🇲',
+    'Scotland':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Ireland':'🇮🇪','Czech Republic':'🇨🇿','Slovakia':'🇸🇰',
+    'Romania':'🇷🇴','Greece':'🇬🇷','Albania':'🇦🇱','North Macedonia':'🇲🇰',
+    'Slovenia':'🇸🇮','Bosnia and Herzegovina':'🇧🇦','Kosovo':'🇽🇰',
+    'Iceland':'🇮🇸','Norway':'🇳🇴','Sweden':'🇸🇪','Finland':'🇫🇮',
+    'Russia':'🇷🇺','Belarus':'🇧🇾','Israel':'🇮🇱','Armenia':'🇦🇲','Georgia':'🇬🇪',
+    'Ivory Coast':'🇨🇮',"Côte d'Ivoire":'🇨🇮','Mali':'🇲🇱','Burkina Faso':'🇧🇫',
+    'Zimbabwe':'🇿🇼','Zambia':'🇿🇲','Algeria':'🇩🇿','Libya':'🇱🇾',
+    'South Africa':'🇿🇦','Tanzania':'🇹🇿','Kenya':'🇰🇪','Ethiopia':'🇪🇹',
+  };
+  if (!name) return '🏳️';
+  return flags[name] || '🏳️';
+}
+
+function stageLabel(stage) {
+  const m = {
+    'GROUP_STAGE':'Csoportkör','LAST_32':'Rájátszás (R32)','LAST_16':'Nyolcaddöntő',
+    'QUARTER_FINALS':'Negyeddöntő','SEMI_FINALS':'Elődöntő','THIRD_PLACE':'Bronzmérkőzés',
+    'FINAL':'Döntő'
+  };
+  return m[stage] || stage;
+}
+
+function formatMatchTime(utcDate, status) {
+  if (!utcDate) return '';
+  const d = new Date(utcDate);
+  const now = new Date();
+  const isToday = d.toDateString() === now.toDateString();
+  const tomorrow = new Date(now); tomorrow.setDate(now.getDate()+1);
+  const isTomorrow = d.toDateString() === tomorrow.toDateString();
+  const time = d.toLocaleTimeString('hu-HU', {hour:'2-digit',minute:'2-digit'});
+  if (['IN_PLAY','PAUSED','LIVE'].includes(status)) return `🔴 Élő`;
+  if (isToday) return `Ma ${time}`;
+  if (isTomorrow) return `Holnap ${time}`;
+  return d.toLocaleDateString('hu-HU', {month:'short',day:'numeric'}) + ' ' + time;
+}
+
+function getTipKey(matchId) { return `${matchId}`; }
+
+function getSavedTip(matchId, playerName) {
+  const tips = state.tips[getTipKey(matchId)] || {};
+  return tips[playerName] || null;
+}
+
+function saveTip(matchId, playerName, home, away) {
+  if (!state.tips[getTipKey(matchId)]) state.tips[getTipKey(matchId)] = {};
+  state.tips[getTipKey(matchId)][playerName] = { home: parseInt(home), away: parseInt(away) };
+  Store.set('tips', state.tips);
+}
+
+function calcPoints(tip, score) {
+  if (!score || score.home === null || score.away === null) return null;
+  if (tip.home === score.home && tip.away === score.away) return 3;
+  const tipResult = tip.home > tip.away ? 'H' : tip.home < tip.away ? 'A' : 'D';
+  const realResult = score.home > score.away ? 'H' : score.home < score.away ? 'A' : 'D';
+  if (tipResult === realResult) return 1;
+  return 0;
+}
+
+function getFinalScore(match) {
+  if (match.status !== 'FINISHED') return null;
+  const s = match.score?.fullTime;
+  if (!s || s.home === null) return null;
+  return s;
+}
+
+function renderMatchCard(match) {
+  const home = match.homeTeam?.shortName || match.homeTeam?.name || '?';
+  const away = match.awayTeam?.shortName || match.awayTeam?.name || '?';
+  const score = match.score?.fullTime;
+  const liveScore = match.score?.halfTime;
+  const isLive = ['IN_PLAY','PAUSED','LIVE'].includes(match.status);
+  const isFinished = match.status === 'FINISHED';
+  const finalScore = getFinalScore(match);
+
+  let scoreHTML = '';
+  if (isFinished && score) {
+    scoreHTML = `<div class="score-main">${score.home ?? '?'} – ${score.away ?? '?'}</div>`;
+  } else if (isLive && score) {
+    scoreHTML = `<div class="score-main">${score.home ?? 0} – ${score.away ?? 0}</div><div class="score-minute">⏱ Élő</div>`;
+  } else {
+    scoreHTML = `<div class="score-vs">vs</div>`;
+  }
+
+  const tipsHTML = state.players.length === 0 ? '' : `
+    <div class="tip-section">
+      <div class="tip-section-title">Tippek</div>
+      <div class="tips-row">
+        ${state.players.map(p => {
+          const saved = getSavedTip(match.id, p);
+          const pts = saved && finalScore ? calcPoints(saved, finalScore) : null;
+          const ptsHTML = pts !== null ? `<span class="tip-points ${pts===3?'pts-3':pts===1?'pts-1':'pts-0'}">${pts}pt</span>` : '';
+          const readonly = isFinished ? 'readonly' : '';
+          const savedText = saved && !isFinished ? `<span class="tip-saved">✓</span>` : '';
+          return `<div class="tip-player-block">
+            <span class="tip-player-name">${p}</span>
+            <div class="tip-input-group">
+              <input type="number" class="tip-input" min="0" max="99" value="${saved?.home ?? ''}"
+                     id="tip-${match.id}-${p}-h" ${readonly} ${p===state.activePlayer?'':'tabindex="-1"'}>
+              <span class="tip-sep">–</span>
+              <input type="number" class="tip-input" min="0" max="99" value="${saved?.away ?? ''}"
+                     id="tip-${match.id}-${p}-a" ${readonly} ${p===state.activePlayer?'':'tabindex="-1"'}>
+              ${!isFinished ? `<button class="tip-save-btn" onclick="handleSaveTip(${match.id},'${p.replace(/'/g,"\\'")}')">OK</button>` : ''}
+              ${ptsHTML}${savedText}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  return `<div class="match-card ${isLive ? 'live-match' : ''}">
+    <div class="match-header">
+      <span class="match-stage">${stageLabel(match.stage)} ${match.group ? '· '+match.group.replace('GROUP_','')+'csoport' : ''}</span>
+      <div style="display:flex;align-items:center;gap:.5rem;">
+        <span class="match-time">${formatMatchTime(match.utcDate, match.status)}</span>
+        <span class="status-badge status-${match.status}">${statusLabel(match.status)}</span>
+      </div>
+    </div>
+    <div class="match-body">
+      <div class="team">
+        <div class="team-flag">${teamFlag(match.homeTeam?.name)}</div>
+        <div class="team-name">${home}</div>
+      </div>
+      <div class="score-display">${scoreHTML}</div>
+      <div class="team">
+        <div class="team-flag">${teamFlag(match.awayTeam?.name)}</div>
+        <div class="team-name">${away}</div>
+      </div>
+    </div>
+    ${tipsHTML}
+  </div>`;
+}
+
+function statusLabel(s) {
+  const m = {'SCHEDULED':'Közelgő','TIMED':'Közelgő','IN_PLAY':'Élő','PAUSED':'Szünet','LIVE':'Élő','FINISHED':'Kész','POSTPONED':'Halasztott','SUSPENDED':'Felfüggesztve','CANCELLED':'Törölve'};
+  return m[s] || s;
+}
+
+function renderMatches() {
+  const container = document.getElementById('matches-container');
+  const noMatches = document.getElementById('no-matches');
+  const loading = document.getElementById('matches-loading');
+
+  loading.style.display = 'none';
+  container.style.display = 'flex';
+
+  if (!state.apiKey) {
+    document.getElementById('api-notice-tips').style.display = 'block';
+    document.getElementById('tips-filters').style.display = 'none';
+    container.style.display = 'none';
+    return;
+  }
+
+  document.getElementById('api-notice-tips').style.display = 'none';
+  document.getElementById('tips-filters').style.display = 'flex';
+
+  const filtered = getFilteredMatches();
+  if (filtered.length === 0) {
+    container.innerHTML = '';
+    noMatches.style.display = 'block';
+  } else {
+    noMatches.style.display = 'none';
+    container.innerHTML = filtered.map(renderMatchCard).join('');
+  }
+
+  buildStageFilters();
+}
+
+function buildStageFilters() {
+  const stages = [...new Set(state.matches.map(m => m.stage).filter(Boolean))];
+  const stageOrder = ['GROUP_STAGE','LAST_32','LAST_16','QUARTER_FINALS','SEMI_FINALS','THIRD_PLACE','FINAL'];
+  stages.sort((a,b) => stageOrder.indexOf(a) - stageOrder.indexOf(b));
+  const container = document.getElementById('stage-filters');
+  const current = state.filters.stage;
+  container.innerHTML = `<button class="filter-btn ${current==='all'?'active':''}" data-filter="stage" data-value="all">Minden szakasz</button>`
+    + stages.map(s => `<button class="filter-btn ${current===s?'active':''}" data-filter="stage" data-value="${s}">${stageLabel(s)}</button>`).join('');
+  container.querySelectorAll('[data-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-filter="stage"]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.filters.stage = btn.dataset.value;
+      applyFilters();
+    });
+  });
+}
+
+function showMatchError(msg) {
+  const el = document.getElementById('matches-error');
+  el.style.display = 'block';
+  el.textContent = `⚠️ API hiba: ${msg}`;
+  document.getElementById('matches-loading').style.display = 'none';
+}
+
+// ============================================================
+// TIP HANDLING
+// ============================================================
+function handleSaveTip(matchId, playerName) {
+  const hEl = document.getElementById(`tip-${matchId}-${playerName}-h`);
+  const aEl = document.getElementById(`tip-${matchId}-${playerName}-a`);
+  if (!hEl || !aEl) return;
+  const h = hEl.value, a = aEl.value;
+  if (h === '' || a === '') { showToast('Add meg mindkét értéket!'); return; }
+  saveTip(matchId, playerName, h, a);
+  renderStandings();
+  showToast(`✅ ${playerName}: ${h}–${a} mentve`);
+  // refresh just this card
+  renderMatches();
+}
+
+// ============================================================
+// STANDINGS
+// ============================================================
+function renderStandings() {
+  const tbody = document.getElementById('standings-body');
+  if (!tbody) return;
+
+  const results = state.players.map(p => {
+    let pts = 0, exact = 0, correct = 0, total = 0;
+    state.matches.forEach(m => {
+      const finalScore = getFinalScore(m);
+      const tip = getSavedTip(m.id, p);
+      if (!tip) return;
+      total++;
+      if (finalScore) {
+        const p_ = calcPoints(tip, finalScore);
+        pts += p_;
+        if (p_ === 3) exact++;
+        if (p_ === 1) correct++;
+      }
+    });
+    return { name: p, pts, exact, correct, total };
+  }).sort((a,b) => b.pts - a.pts || b.exact - a.exact);
+
+  tbody.innerHTML = results.map((r, i) => `
+    <tr>
+      <td class="${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':''}">${i+1}</td>
+      <td><strong>${r.name}</strong></td>
+      <td class="pts-cell">${r.pts}</td>
+      <td>${r.exact}</td>
+      <td>${r.correct}</td>
+      <td>${r.total}</td>
+    </tr>`).join('');
+
+  // Detail
+  const detail = document.getElementById('tips-detail');
+  detail.innerHTML = state.players.map(p => {
+    const tippedMatches = state.matches.filter(m => getSavedTip(m.id, p));
+    if (tippedMatches.length === 0) return `<div style="margin-bottom:1rem;color:var(--muted);font-size:.9rem;">${p}: Nincs tipp.</div>`;
+    return `<div style="margin-bottom:1.5rem;">
+      <div style="font-weight:700;color:var(--gold);margin-bottom:.5rem;">👤 ${p}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem;">
+        ${tippedMatches.map(m => {
+          const tip = getSavedTip(m.id, p);
+          const fs = getFinalScore(m);
+          const pts = fs ? calcPoints(tip, fs) : null;
+          const h = m.homeTeam?.shortName || m.homeTeam?.name || '?';
+          const a = m.awayTeam?.shortName || m.awayTeam?.name || '?';
+          return `<span style="background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:.3rem .6rem;font-size:.8rem;">
+            ${h} <strong>${tip.home}–${tip.away}</strong> ${a}
+            ${fs ? `<em style="color:var(--muted)">(${fs.home}–${fs.away})</em>` : ''}
+            ${pts!==null?`<span class="tip-points ${pts===3?'pts-3':pts===1?'pts-1':'pts-0'}">${pts}pt</span>`:''}
+          </span>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// GROUPS
+// ============================================================
+function renderGroups() {
+  const container = document.getElementById('groups-container');
+  const loading = document.getElementById('groups-loading');
+
+  if (!state.apiKey) {
+    document.getElementById('api-notice-groups-small').style.display = 'block';
+    loading.style.display = 'none';
+    container.style.display = 'none';
+    return;
+  }
+
+  loading.style.display = 'none';
+  container.style.display = 'grid';
+
+  if (!state.standings || state.standings.length === 0) {
+    // Build from matches
+    const groups = buildGroupsFromMatches();
+    container.innerHTML = groups.map(renderGroupCard).join('');
+    return;
+  }
+
+  container.innerHTML = state.standings.map(group => {
+    if (!group.table) return '';
+    return `<div class="group-card">
+      <div class="group-card-title">${group.group ? group.group.replace('GROUP_','') + ' Csoport' : 'Csoport'}</div>
+      <table class="group-table">
+        <thead><tr><th>Csapat</th><th>M</th><th>Gy</th><th>D</th><th>V</th><th>Gk</th><th>Pt</th></tr></thead>
+        <tbody>${group.table.map((row, i) => `
+          <tr class="${i < 2 ? 'qualified' : ''}">
+            <td>${teamFlag(row.team?.name)} ${row.team?.shortName || row.team?.name}</td>
+            <td>${row.playedGames}</td><td>${row.won}</td><td>${row.draw}</td><td>${row.lost}</td>
+            <td>${row.goalsFor}:${row.goalsAgainst}</td>
+            <td><strong>${row.points}</strong></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+function buildGroupsFromMatches() {
+  const groups = {};
+  state.matches.filter(m => m.stage === 'GROUP_STAGE').forEach(m => {
+    const g = m.group || 'Ismeretlen';
+    if (!groups[g]) groups[g] = { name: g, teams: {} };
+    const addTeam = (team, isHome, score) => {
+      const n = team?.name;
+      if (!n) return;
+      if (!groups[g].teams[n]) groups[g].teams[n] = { name: n, shortName: team?.shortName, flag: teamFlag(n), p:0, m:0, w:0, d:0, l:0, gf:0, ga:0, pts:0 };
+      const t = groups[g].teams[n];
+      if (m.status !== 'FINISHED' || !score) return;
+      t.m++;
+      const myG = isHome ? score.home : score.away;
+      const oppG = isHome ? score.away : score.home;
+      t.gf += myG; t.ga += oppG;
+      if (myG > oppG) { t.w++; t.pts += 3; }
+      else if (myG === oppG) { t.d++; t.pts += 1; }
+      else { t.l++; }
+    };
+    const fs = m.score?.fullTime;
+    addTeam(m.homeTeam, true, fs);
+    addTeam(m.awayTeam, false, fs);
+  });
+  return Object.values(groups).map(g => ({
+    name: g.name,
+    teams: Object.values(g.teams).sort((a,b) => b.pts-a.pts || (b.gf-b.ga)-(a.gf-a.ga))
+  }));
+}
+
+function renderGroupCard(group) {
+  if (!group.teams || group.teams.length === 0) return '';
+  return `<div class="group-card">
+    <div class="group-card-title">${group.name.replace('GROUP_','')} Csoport</div>
+    <table class="group-table">
+      <thead><tr><th>Csapat</th><th>M</th><th>Gy</th><th>D</th><th>V</th><th>Gk</th><th>Pt</th></tr></thead>
+      <tbody>${group.teams.map((t, i) => `
+        <tr class="${i < 2 ? 'qualified' : ''}">
+          <td>${t.flag} ${t.shortName || t.name}</td>
+          <td>${t.m}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td>
+          <td>${t.gf}:${t.ga}</td><td><strong>${t.pts}</strong></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// ============================================================
+// BRACKET
+// ============================================================
+function renderBracket() {
+  const container = document.getElementById('bracket-container');
+  const inner = document.getElementById('bracket-inner');
+  const loading = document.getElementById('bracket-loading');
+  const placeholder = document.getElementById('bracket-placeholder');
+
+  loading.style.display = 'none';
+
+  const knockoutStages = ['LAST_32','LAST_16','QUARTER_FINALS','SEMI_FINALS','THIRD_PLACE','FINAL'];
+  const stageMatches = {};
+  knockoutStages.forEach(s => {
+    const ms = state.matches.filter(m => m.stage === s);
+    if (ms.length > 0) stageMatches[s] = ms;
+  });
+
+  if (Object.keys(stageMatches).length === 0) {
+    container.style.display = 'none';
+    placeholder.style.display = 'block';
+    return;
+  }
+
+  container.style.display = 'block';
+  placeholder.style.display = 'none';
+
+  const stages = knockoutStages.filter(s => stageMatches[s]);
+  inner.innerHTML = stages.map(stage => `
+    <div class="bracket-round">
+      <div class="bracket-round-title">${stageLabel(stage)}</div>
+      <div class="bracket-matches">
+        ${stageMatches[stage].map(m => {
+          const score = m.score?.fullTime;
+          const isFinished = m.status === 'FINISHED';
+          const homeWin = isFinished && score && score.home > score.away;
+          const awayWin = isFinished && score && score.away > score.home;
+          const h = m.homeTeam?.shortName || m.homeTeam?.name || 'TBD';
+          const a = m.awayTeam?.shortName || m.awayTeam?.name || 'TBD';
+          return `<div class="bracket-match">
+            <div class="bracket-team ${homeWin?'winner':''}">
+              <span class="bracket-team-name">${teamFlag(m.homeTeam?.name)} ${h}</span>
+              <span class="bracket-team-score">${isFinished && score ? score.home : ''}</span>
+            </div>
+            <div class="bracket-team ${awayWin?'winner':''}">
+              <span class="bracket-team-name">${teamFlag(m.awayTeam?.name)} ${a}</span>
+              <span class="bracket-team-score">${isFinished && score ? score.away : ''}</span>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ============================================================
+// PLAYERS
+// ============================================================
+function renderPlayersSettings() {
+  const list = document.getElementById('players-list');
+  if (state.players.length === 0) {
+    list.innerHTML = `<div style="color:var(--muted);font-size:.85rem;text-align:center;padding:1rem;">Még nincs játékos hozzáadva.</div>`;
+    return;
+  }
+  list.innerHTML = state.players.map(p => `
+    <div class="player-item ${p === state.activePlayer ? 'active-player' : ''}">
+      <span class="player-item-name">${p === state.activePlayer ? '▶ ' : ''}${p}</span>
+      <div class="player-item-actions">
+        <button class="btn secondary small" onclick="setActivePlayer('${p.replace(/'/g,"\\'")}')">Aktív</button>
+        <button class="btn danger small" onclick="removePlayer('${p.replace(/'/g,"\\'")}')">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function addPlayer() {
+  const input = document.getElementById('new-player-input');
+  const name = input.value.trim();
+  if (!name) return;
+  if (state.players.includes(name)) { showToast('Ez a név már létezik!'); return; }
+  state.players.push(name);
+  Store.set('players', state.players);
+  if (!state.activePlayer) setActivePlayer(name);
+  input.value = '';
+  renderPlayersSettings();
+  renderMatches();
+  showToast(`✅ ${name} hozzáadva`);
+}
+
+function removePlayer(name) {
+  if (!confirm(`Biztosan törlöd: ${name}?`)) return;
+  state.players = state.players.filter(p => p !== name);
+  Store.set('players', state.players);
+  if (state.activePlayer === name) {
+    state.activePlayer = state.players[0] || null;
+    Store.set('activePlayer', state.activePlayer);
+  }
+  renderPlayersSettings();
+  renderMatches();
+  updateActivePlayerLabel();
+}
+
+function setActivePlayer(name) {
+  state.activePlayer = name;
+  Store.set('activePlayer', name);
+  renderPlayersSettings();
+  updateActivePlayerLabel();
+  showToast(`👤 Aktív játékos: ${name}`);
+}
+
+function updateActivePlayerLabel() {
+  document.getElementById('active-player-label').textContent = state.activePlayer || 'Válassz játékost';
+}
+
+function switchPlayerPrompt() {
+  if (state.players.length === 0) { switchTab('settings'); return; }
+  const idx = state.players.indexOf(state.activePlayer);
+  const next = state.players[(idx + 1) % state.players.length];
+  setActivePlayer(next);
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key) { showToast('Add meg az API kulcsodat!'); return; }
+  state.apiKey = key;
+  Store.set('apiKey', key);
+  showToast('✅ API kulcs mentve!');
+  state.cache = {};
+  init();
+}
+
+async function testApiKey() {
+  const key = document.getElementById('api-key-input').value.trim() || state.apiKey;
+  if (!key) { showToast('Nincs API kulcs!'); return; }
+  const result = document.getElementById('api-test-result');
+  result.innerHTML = '<span style="color:var(--muted)">Tesztelés...</span>';
+  try {
+    const res = await fetch(`${API_BASE}/competitions/${COMP}`, {
+      headers: { 'X-Auth-Token': key }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      result.innerHTML = `<span style="color:var(--green)">✅ Sikeres kapcsolat: ${data.name || 'WC 2026'}</span>`;
+    } else {
+      const err = await res.json().catch(()=>({}));
+      result.innerHTML = `<span style="color:var(--red)">❌ Hiba: ${err.message || res.status}</span>`;
+    }
+  } catch(e) {
+    result.innerHTML = `<span style="color:var(--red)">❌ Hálózati hiba</span>`;
+  }
+}
+
+function clearTips() {
+  state.tips = {};
+  Store.set('tips', {});
+  renderMatches();
+  renderStandings();
+  showToast('Tippek törölve.');
+}
+
+function clearAll() {
+  ['tips','players','activePlayer','apiKey','refreshInterval'].forEach(k => Store.remove(k));
+  location.reload();
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+async function init() {
+  updateActivePlayerLabel();
+  renderPlayersSettings();
+  renderStandings();
+
+  // Load saved API key into input
+  if (state.apiKey) {
+    document.getElementById('api-key-input').value = state.apiKey;
+  }
+
+  // Load refresh interval
+  const sel = document.getElementById('refresh-interval-select');
+  if (sel) sel.value = state.refreshInterval;
+
+  if (!state.apiKey) {
+    document.getElementById('matches-loading').style.display = 'none';
+    document.getElementById('api-notice-tips').style.display = 'block';
+    document.getElementById('groups-loading').style.display = 'none';
+    document.getElementById('bracket-loading').style.display = 'none';
+    document.getElementById('bracket-placeholder').style.display = 'block';
+    return;
+  }
+
+  try {
+    const matches = await loadMatches();
+    if (matches) {
+      state.matches = matches;
+      renderMatches();
+      renderBracket();
+    }
+  } catch(e) {
+    showMatchError(e.message);
+  }
+
+  try {
+    const standings = await loadStandings();
+    if (standings) {
+      state.standings = standings;
+      renderGroups();
+    }
+  } catch(e) {
+    renderGroups();
+  }
+
+  renderStandings();
+  startAutoRefresh();
+}
+
+init();
+</script>
+</body>
+</html>
