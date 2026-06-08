@@ -792,18 +792,29 @@ function renderMatchCard(match) {
           const pts = saved && finalScore ? calcPoints(saved, finalScore) : null
           const isMe = p === state.activePlayer
           const ptsHTML = pts !== null ? `<span class="tip-points ${pts===3?'pts-3':pts===1?'pts-1':'pts-0'}">${pts}pt</span>` : ''
+          if (isFinished) {
+            const tipText = saved ? `<strong>${saved.home} – ${saved.away}</strong>` : `<span style="color:var(--muted)">–</span>`
+            const noTipMsg = !saved ? `<span style="font-size:.72rem;color:var(--muted);font-style:italic">nem tippelt</span>` : ''
+            return `<div class="tip-player-block">
+              <span class="tip-player-name">${p}</span>
+              <div class="tip-input-group" style="gap:.5rem">
+                <span style="font-size:.9rem">${tipText}</span>
+                ${noTipMsg}
+                ${ptsHTML}
+              </div>
+            </div>`
+          }
           return `<div class="tip-player-block ${isMe?'is-me':''}">
             <span class="tip-player-name">${p}${isMe?' 👤':''}</span>
             <div class="tip-input-group">
               <input type="number" class="tip-input" min="0" max="99" value="${saved?.home??''}"
-                id="tip-${match.id}-${p}-h" ${isFinished||isLive?'readonly':''}>
+                id="tip-${match.id}-${p}-h" ${isLive?'readonly':''}>
               <span class="tip-sep">–</span>
               <input type="number" class="tip-input" min="0" max="99" value="${saved?.away??''}"
-                id="tip-${match.id}-${p}-a" ${isFinished||isLive?'readonly':''}>
-              ${isLive && !isFinished ? `<span style="font-size:.72rem;color:var(--live);font-weight:700;">🔒 Lezárva</span>` : ''}
-              ${!isFinished && !isLive ? `<button class="tip-save-btn" onclick="handleSaveTip(${match.id},'${p.replace(/'/g,"\\'")}')">OK</button>` : ''}
-              ${ptsHTML}
-              ${saved && !isFinished && !isLive ? `<span class="tip-saved">✓</span>` : ''}
+                id="tip-${match.id}-${p}-a" ${isLive?'readonly':''}>
+              ${isLive ? `<span style="font-size:.72rem;color:var(--live);font-weight:700;">🔒 Lezárva</span>` : ''}
+              ${!isLive ? `<button class="tip-save-btn" onclick="handleSaveTip(${match.id},'${p.replace(/'/g,"\\'")}')">OK</button>` : ''}
+              ${saved && !isLive ? `<span class="tip-saved">✓</span>` : ''}
             </div>
           </div>`
         }).join('')}
