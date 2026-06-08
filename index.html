@@ -172,12 +172,66 @@
   .error-msg { background: rgba(230,57,70,.1); border: 1px solid var(--red); border-radius: 10px; padding: 1rem; color: #ff8a92; font-size: .9rem; margin-bottom: 1rem; }
 
   @media (max-width: 640px) {
-    .title-block h1 { font-size: 1.1rem; }
-    .match-body { gap: .5rem; padding: .75rem; }
-    .team-name { font-size: .8rem; }
-    .score-main { font-size: 1.5rem; }
-    .team-flag { font-size: 1.5rem; }
-    main { padding: 1rem; }
+    /* Header */
+    header { padding: 0 .75rem; }
+    .mascot-wrap { width: 36px; height: 36px; }
+    .mascot-wrap svg { width: 36px; height: 36px; }
+    .title-block h1 { font-size: 1rem; }
+    .title-block p { display: none; }
+    .refresh-indicator { display: none; }
+    .realtime-badge { display: none !important; }
+    .player-badge { padding: .25rem .6rem; font-size: .75rem; }
+
+    /* Tabs */
+    .tabs { padding: 0 .25rem; }
+    .tab { padding: .75rem .75rem; font-size: .78rem; }
+
+    /* Main */
+    main { padding: .75rem; }
+
+    /* Filters */
+    .filters { gap: .4rem; margin-bottom: 1rem; }
+    .filter-btn { padding: .3rem .65rem; font-size: .75rem; }
+    .search-input { width: 100%; min-width: unset; font-size: .85rem; }
+
+    /* Match card */
+    .match-header { padding: .45rem .75rem; }
+    .match-stage { font-size: .65rem; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .match-time { font-size: .7rem; }
+    .status-badge { font-size: .65rem; padding: .15rem .4rem; }
+    .match-body { gap: .4rem; padding: .75rem .5rem; }
+    .team-flag { width: 36px; height: 36px; }
+    .team-flag img { width: 36px; height: 36px; }
+    .team-name { font-size: .75rem; font-weight: 700; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .score-main { font-size: 1.6rem; letter-spacing: 1px; }
+    .score-vs { font-size: .9rem; }
+
+    /* Tips */
+    .tip-section { padding: .6rem .75rem; }
+    .tips-row { gap: .4rem; }
+    .tip-player-block { padding: .25rem .4rem; gap: .3rem; flex-wrap: nowrap; }
+    .tip-player-name { font-size: .7rem; min-width: 48px; }
+    .tip-input { width: 36px; font-size: .85rem; padding: .2rem; }
+    .tip-save-btn { padding: .2rem .45rem; font-size: .7rem; }
+
+    /* Standings table */
+    .standings-table th, .standings-table td { padding: .5rem .5rem; font-size: .8rem; }
+    .standings-table th:nth-child(4),
+    .standings-table td:nth-child(4),
+    .standings-table th:nth-child(5),
+    .standings-table td:nth-child(5) { display: none; }
+
+    /* Groups */
+    .groups-grid { grid-template-columns: 1fr; }
+    .group-table { font-size: .78rem; }
+    .group-table td, .group-table th { padding: .35rem .4rem; }
+
+    /* Settings */
+    .settings-grid { grid-template-columns: 1fr; gap: 1rem; }
+    .settings-card { padding: 1rem; }
+
+    /* Toast */
+    #toast { width: 90%; text-align: center; font-size: .85rem; }
   }
 </style>
 </head>
